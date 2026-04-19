@@ -1275,7 +1275,6 @@ window.editPick = (id) => {
 };
 
 window.updatePickResult = async (id, result) => {
-  const { doc: fbDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
   await setDoc(doc(db,'picks',id), {result}, {merge:true});
   renderPicks();
   showToast(result==='win'?'✅ Pick ganado':'❌ Pick perdido');
