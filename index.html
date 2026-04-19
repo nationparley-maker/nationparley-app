@@ -308,8 +308,8 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     <div class="card">
       <div class="card-accent" style="background:linear-gradient(90deg,var(--c-metrics),transparent)"></div>
       <div class="section-head">
-        <div class="card-title">Actualizar métricas</div>
-        <button class="btn-outline btn-sm" onclick="openModal('modal-metrics')">+ Actualizar</button>
+        <div class="card-title">Indicadores</div>
+        <div style="font-size:11px;color:var(--dim)" id="metrics-updated"></div>
       </div>
       <div id="metrics-list"></div>
     </div>
@@ -1025,27 +1025,76 @@ async function getMetrics() {
   } catch { return {}; }
 }
 
+async function getAutoMetrics() {
+  // Calculate win rate and picks automatically from picks collection
+  try {
+    const q = query(collection(db,'picks'), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    const picks = [];
+    snap.forEach(d => picks.push(d.data()));
+    const total = picks.length;
+    const resolved = picks.filter(p=>p.result==='win'||p.result==='loss');
+    const wins = picks.filter(p=>p.result==='win').length;
+    const winrate = resolved.length > 0 ? Math.round((wins/resolved.length)*100) : 0;
+    // VIP = picks with tier vip (as proxy until admin panel connected)
+    return { totalPicks: total, winrate, wins, losses: resolved.length - wins };
+  } catch { return { totalPicks: 0, winrate: 0, wins: 0, losses: 0 }; }
+}
+
 async function renderMetrics() {
   const m = await getMetrics();
+  const auto = await getAutoMetrics();
+
+  // Auto-save winrate and picks back to metrics
+  if (auto.totalPicks > 0 || auto.winrate > 0) {
+    await setDoc(doc(db, 'metrics', currentUser.uid), {
+      winrate: auto.winrate,
+      picks: auto.totalPicks,
+      updatedAt: serverTimestamp()
+    }, {merge: true});
+  }
+
   const items = [
-    { label:'Seguidores Telegram', val: m.telegram||0, goal: 5000, color:'var(--blue)' },
-    { label:'Seguidores Instagram', val: m.instagram||0, goal: 5000, color:'var(--purple)' },
-    { label:'Suscriptores VIP', val: m.vip||0, goal: 500, color:'var(--gold)' },
-    { label:'Win Rate', val: (m.winrate||0)+'%', goal: 65, raw: m.winrate||0, isPercent:true, color:'var(--green)' },
-    { label:'Total Picks', val: m.picks||0, goal: 200, color:'var(--c-metrics)' },
-    { label:'Retención', val: (m.retention||0)+'%', goal: 60, raw: m.retention||0, isPercent:true, color:'var(--c-checklist)' },
+    { label:'Seguidores Telegram', val: m.telegram||0, goal: 5000, color:'var(--blue)', manual: true, field:'telegram', hint:'Abrí tu canal → ves el número arriba' },
+    { label:'Seguidores Instagram', val: m.instagram||0, goal: 5000, color:'var(--purple)', manual: true, field:'instagram', hint:'Abrí tu perfil → seguidores' },
+    { label:'Suscriptores VIP', val: m.vip||0, goal: 500, color:'var(--gold)', manual: true, field:'vip', hint:'Contá los activos en el panel admin' },
+    { label:'Win Rate', val: auto.winrate+'%', goal: 65, raw: auto.winrate, isPercent:true, color:'var(--green)', auto: true, sub:`${auto.wins}G / ${auto.losses}P` },
+    { label:'Total Picks', val: auto.totalPicks, goal: 200, color:'var(--c-metrics)', auto: true },
+    { label:'Retención %', val: (m.retention||0)+'%', goal: 60, raw: m.retention||0, isPercent:true, color:'var(--c-checklist)', manual: true, field:'retention', hint:'% de VIP que renuevan cada mes' },
   ];
+
+  // Show last updated
+  if (m.updatedAt) {
+    const d = m.updatedAt.toDate ? m.updatedAt.toDate() : new Date(m.updatedAt);
+    document.getElementById('metrics-updated').textContent = 'Actualizado: ' + d.toLocaleDateString('es-CO');
+  }
+
   document.getElementById('metrics-list').innerHTML = items.map(i => `
     <div class="metric-row">
-      <div><div class="metric-label">${i.label}</div></div>
-      <div style="text-align:right"><div class="metric-val" style="color:${i.color}">${i.val}</div><div class="metric-goal">Meta: ${i.isPercent ? i.goal+'%' : i.goal.toLocaleString()}</div></div>
+      <div style="flex:1">
+        <div class="metric-label">${i.label}</div>
+        <div style="font-size:10px;letter-spacing:1px;margin-top:2px;color:${i.auto?'var(--green)':'var(--dim)'}">
+          ${i.auto ? '🔄 AUTOMÁTICO' : i.hint||''}
+        </div>
+        ${i.sub ? `<div style="font-size:11px;color:var(--dim)">${i.sub}</div>` : ''}
+      </div>
+      <div style="text-align:right;display:flex;align-items:center;gap:10px">
+        <div>
+          <div class="metric-val" style="color:${i.color}">${i.val}</div>
+          <div class="metric-goal">Meta: ${i.isPercent ? i.goal+'%' : i.goal.toLocaleString()}</div>
+        </div>
+        ${i.manual ? `<button onclick="quickUpdateMetric('${i.field}',${i.val})" 
+          style="background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;
+                 color:var(--gold);font-size:16px;cursor:pointer;transition:all .15s"
+          onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">✏</button>` : ''}
+      </div>
     </div>`).join('');
 
   // Goals progress
   const goals = [
     { label:'Seguidores totales', val:(m.telegram||0)+(m.instagram||0), goal:10000, color:'var(--c-metrics)' },
     { label:'VIP activos', val:m.vip||0, goal:500, color:'var(--gold)' },
-    { label:'Win Rate', val:m.winrate||0, goal:65, color:'var(--green)', isPercent:true },
+    { label:'Win Rate', val:auto.winrate, goal:65, color:'var(--green)', isPercent:true },
   ];
   document.getElementById('metrics-goals').innerHTML = goals.map(g => {
     const pct = Math.min(100, Math.round((g.val/g.goal)*100));
@@ -1057,26 +1106,32 @@ async function renderMetrics() {
     </div>`;
   }).join('');
 
-  // Fill modal
+  // Fill modal with current values
   if(m.telegram) document.getElementById('m-telegram').value = m.telegram;
   if(m.instagram) document.getElementById('m-instagram').value = m.instagram;
   if(m.vip) document.getElementById('m-vip').value = m.vip;
-  if(m.winrate) document.getElementById('m-winrate').value = m.winrate;
-  if(m.picks) document.getElementById('m-picks').value = m.picks;
+  document.getElementById('m-winrate').value = auto.winrate;
+  document.getElementById('m-picks').value = auto.totalPicks;
   if(m.retention) document.getElementById('m-retention').value = m.retention;
 }
+
+window.quickUpdateMetric = (field, current) => {
+  const val = prompt(`Actualizar ${field === 'telegram' ? 'Seguidores Telegram' : field === 'instagram' ? 'Seguidores Instagram' : field === 'vip' ? 'Suscriptores VIP' : 'Retención %'}:`, current);
+  if (val === null) return;
+  const num = parseInt(val) || 0;
+  setDoc(doc(db, 'metrics', currentUser.uid), { [field]: num, updatedAt: serverTimestamp() }, {merge: true})
+    .then(() => { renderMetrics(); renderDashboard(); showToast('✦ ' + field + ' actualizado'); });
+};
 
 window.saveMetrics = async () => {
   const data = {
     telegram: parseInt(document.getElementById('m-telegram').value)||0,
     instagram: parseInt(document.getElementById('m-instagram').value)||0,
     vip: parseInt(document.getElementById('m-vip').value)||0,
-    winrate: parseInt(document.getElementById('m-winrate').value)||0,
-    picks: parseInt(document.getElementById('m-picks').value)||0,
     retention: parseInt(document.getElementById('m-retention').value)||0,
     updatedAt: serverTimestamp()
   };
-  await setDoc(doc(db, 'metrics', currentUser.uid), data);
+  await setDoc(doc(db, 'metrics', currentUser.uid), data, {merge: true});
   closeModal('modal-metrics');
   renderMetrics();
   renderDashboard();
