@@ -56,7 +56,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
 .auth-error { color: var(--red); font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
 
 /* ── APP SHELL ── */
-#screen-app { padding-bottom: 72px; overflow-y: auto; }
+#screen-app { padding-bottom: 72px; overflow-y: auto; height: 100%; }
 .topbar { position: sticky; top: 0; z-index: 50; background: var(--s1); border-bottom: 1px solid var(--border);
   padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
 .topbar-brand { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700;
@@ -244,7 +244,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
       <div class="field"><label>Rol</label>
         <select id="reg-role">
           <option value="admin">Admin / Contenido (vos)</option>
-          <option value="stats">Stats / Análisis (tu novio)</option>
+          <option value="stats">Stats / Análisis (Juan Guillermo)</option>
         </select>
       </div>
       <button class="btn-primary" onclick="doRegister()">Crear cuenta</button>
@@ -350,7 +350,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
   <!-- CALENDARIO -->
   <div id="page-calendar" class="page">
     <div class="page-title">📅 Calendario de Lanzamiento</div>
-    <div class="alert alert-warn">📌 Reunión fija con tu novio: Domingos 8pm — Revisión semanal de métricas y plan.</div>
+    <div class="alert alert-warn">📌 Reunión fija con Juan Guillermo: Domingos 8pm — Revisión semanal de métricas y plan.</div>
     <div id="calendar-weeks"></div>
   </div>
 
@@ -476,7 +476,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     <span class="nav-icon">🎨</span><span class="nav-label">Imagen</span>
   </button>
   <button class="nav-btn" onclick="goPage('checklist')" id="nav-checklist">
-    <span class="nav-icon">📋</span><span class="nav-label">Tareas</span>
+    <span class="nav-icon" style="font-size:18px;font-weight:800;color:var(--dim)">☑</span><span class="nav-label">Tareas</span>
   </button>
   <button class="nav-btn" onclick="goPage('picks')" id="nav-picks">
     <span class="nav-icon">🎯</span><span class="nav-label">Picks</span>
@@ -679,14 +679,14 @@ const CHECKLISTS = {
   daily: {
     title: 'Rutina Diaria (2-3 horas)',
     tasks: [
-      { id:'d1', time:'8:00 AM',  text:'Revisar stats y picks de tu novio en Google Sheets' },
+      { id:'d1', time:'8:00 AM',  text:'Revisar stats y picks de Juan Guillermo en Google Sheets' },
       { id:'d2', time:'9:00 AM',  text:'Generar imagen del pick con el generador Nation Parley' },
       { id:'d3', time:'9:30 AM',  text:'Publicar pick en canal free de Telegram' },
       { id:'d4', time:'10:00 AM', text:'Publicar Story en Instagram con el pick' },
       { id:'d5', time:'12:00 PM', text:'Revisar mensajes del bot @NationParleyBot' },
       { id:'d6', time:'6:00 PM',  text:'Publicar análisis o contenido educativo en Instagram' },
       { id:'d7', time:'8:00 PM',  text:'Publicar resultado del pick + pick nocturno' },
-      { id:'d8', time:'9:30 PM',  text:'Check-in 15 min con tu novio: métricas del día' },
+      { id:'d8', time:'9:30 PM',  text:'Check-in 15 min con Juan Guillermo: métricas del día' },
       { id:'d9', time:'10:00 PM', text:'Registrar nuevos suscriptores en el panel admin' },
     ]
   },
@@ -703,7 +703,7 @@ const CHECKLISTS = {
       { id:'w8', time:'Viernes',  text:'Pick fin de semana + recordatorio VIP para free' },
       { id:'w9', time:'Sábado',   text:'Picks live + Reels de resultados en tiempo real' },
       { id:'w10',time:'Domingo',  text:'Resumen semanal (aciertos/fallos) → publicar' },
-      { id:'w11',time:'Domingo',  text:'Reunión con tu novio: métricas + plan semana siguiente' },
+      { id:'w11',time:'Domingo',  text:'Reunión con Juan Guillermo: métricas + plan semana siguiente' },
       { id:'w12',time:'Domingo',  text:'Actualizar métricas en esta app' },
     ]
   },
@@ -894,7 +894,7 @@ async function renderDashboard() {
   const today = new Date().getDay();
   const events = [
     { title:'Publicar picks del día', time:'9:00 AM', color:'var(--c-checklist)' },
-    { title:'Check-in con tu novio', time:'9:30 PM', color:'var(--c-calendar)' },
+    { title:'Check-in con Juan Guillermo', time:'9:30 PM', color:'var(--c-calendar)' },
     today===0 ? { title:'⭐ Reunión semanal', time:'Hoy 8:00 PM', color:'var(--gold)' } : null,
   ].filter(Boolean);
   document.getElementById('upcoming-events').innerHTML = events.map(e =>
@@ -905,7 +905,7 @@ async function renderDashboard() {
   // Alerts
   const winrate = mSnap.winrate||0;
   let alerts = '';
-  if (today===0) alerts += `<div class="alert alert-warn">📅 Hoy es domingo — Reunión con tu novio a las 8pm</div>`;
+  if (today===0) alerts += `<div class="alert alert-warn">📅 Hoy es domingo — Reunión con Juan Guillermo a las 8pm</div>`;
   if (winrate > 0 && winrate < 60) alerts += `<div class="alert alert-warn">⚠️ Win rate en ${winrate}% — Meta mínima 60%</div>`;
   document.getElementById('dashboard-alerts').innerHTML = alerts;
 }
@@ -1254,7 +1254,7 @@ async function renderPicksSimples() {
           <button class="btn-outline btn-sm btn-danger" onclick="deletePick('${p.id}')">🗑</button>
         </div>
       </div>`).join('')
-    : '<div style="color:var(--dim);font-size:14px;padding:20px 0;text-align:center">Sin picks aún — tu novio puede agregar el primero 👆</div>';
+    : '<div style="color:var(--dim);font-size:14px;padding:20px 0;text-align:center">Sin picks aún — Juan Guillermo puede agregar el primero 👆</div>';
   } catch(e) {
     document.getElementById('picks-list').innerHTML = '<div style="color:var(--dim);font-size:13px">Agrega el primer pick</div>';
   }
@@ -1481,12 +1481,12 @@ function scheduleNotifications() {
     Notification.requestPermission();
   }
   const notifications = [
-    { hour:8,  min:0,  msg:'🏃 Nation Parley: Revisá los stats de tu novio' },
+    { hour:8,  min:0,  msg:'🏃 Nation Parley: Revisá los stats de Juan Guillermo' },
     { hour:9,  min:0,  msg:'📊 Nation Parley: Generá la imagen del pick de hoy' },
     { hour:9,  min:30, msg:'📢 Nation Parley: Publicá el pick en Telegram' },
     { hour:18, min:0,  msg:'📸 Nation Parley: Publicá contenido en Instagram' },
     { hour:20, min:0,  msg:'🎯 Nation Parley: Publicá resultado + pick nocturno' },
-    { hour:21, min:30, msg:'💬 Nation Parley: Check-in con tu novio (15 min)' },
+    { hour:21, min:30, msg:'💬 Nation Parley: Check-in con Juan Guillermo (15 min)' },
   ];
   const now = new Date();
   notifications.forEach(n => {
