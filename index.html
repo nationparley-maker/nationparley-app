@@ -274,7 +274,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     <div class="card" style="margin-top:4px">
       <div class="card-accent" style="background:linear-gradient(90deg,var(--c-checklist),transparent)"></div>
       <div class="section-head">
-        <div class="card-title">✅ Tareas de hoy</div>
+        <div class="card-title">Tareas de hoy</div>
         <button class="btn-outline btn-sm" onclick="goPage('checklist')">Ver todo</button>
       </div>
       <div id="today-tasks-preview"></div>
@@ -296,7 +296,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
       <div class="mod-card" onclick="goPage('generator')"><div class="mod-icon">🎨</div><div class="mod-label" style="color:var(--gold-light)">Imagen</div></div>
       <div class="mod-card" onclick="goPage('picks')"><div class="mod-icon">🎯</div><div class="mod-label" style="color:var(--c-ai)">Picks</div></div>
       <div class="mod-card" onclick="goPage('finance')"><div class="mod-icon">💰</div><div class="mod-label" style="color:var(--c-finance)">Finanzas</div></div>
-      <div class="mod-card" onclick="goPage('checklist')"><div class="mod-icon">✅</div><div class="mod-label" style="color:var(--c-checklist)">Tareas</div></div>
+      <div class="mod-card" onclick="goPage('checklist')"><div class="mod-icon" style="font-size:22px;color:var(--c-checklist);font-weight:900">OK</div><div class="mod-label" style="color:var(--c-checklist)">Tareas</div></div>
       <div class="mod-card" onclick="goPage('metrics')"><div class="mod-icon">📊</div><div class="mod-label" style="color:var(--c-metrics)">Métricas</div></div>
       <div class="mod-card" onclick="goPage('content')"><div class="mod-icon">📝</div><div class="mod-label" style="color:var(--c-content)">Contenido</div></div>
     </div>
@@ -356,7 +356,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
 
   <!-- CHECKLISTS -->
   <div id="page-checklist" class="page">
-    <div class="page-title">✅ Checklists</div>
+    <div class="page-title">Checklists</div>
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <button class="btn-outline btn-sm" onclick="showChecklist('daily')" id="cl-daily-btn">Rutina Diaria</button>
       <button class="btn-outline btn-sm" onclick="showChecklist('weekly')" id="cl-weekly-btn">Semanal</button>
@@ -428,6 +428,16 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
   <!-- ══ GENERADOR ══ -->
   <div id="page-generator" class="page">
     <div class="page-title">🎨 Generador de Imágenes</div>
+
+    <!-- Cargar desde picks -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--gold),transparent)"></div>
+      <div class="section-head">
+        <div class="card-title">⚡ Cargar desde Picks</div>
+        <button class="btn-outline btn-sm" onclick="loadPicksForGenerator()">Actualizar</button>
+      </div>
+      <div id="gen-picks-loader" style="font-size:13px;color:var(--dim)">Cargando picks...</div>
+    </div>
 
     <!-- Datalists for autocomplete -->
     <datalist id="ligas-list">
@@ -531,7 +541,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     <span class="nav-icon">🎨</span><span class="nav-label">Imagen</span>
   </button>
   <button class="nav-btn" onclick="goPage('checklist')" id="nav-checklist">
-    <span class="nav-icon" style="font-size:18px;font-weight:800;color:var(--dim)">☑</span><span class="nav-label">Tareas</span>
+    <span class="nav-icon" style="font-size:16px;font-weight:900;color:var(--dim);letter-spacing:-1px">OK</span><span class="nav-label">Tareas</span>
   </button>
   <button class="nav-btn" onclick="goPage('picks')" id="nav-picks">
     <span class="nav-icon">🎯</span><span class="nav-label">Picks</span>
@@ -892,7 +902,7 @@ window.goPage = (id) => {
   if (id==='calendar') renderCalendar();
   if (id==='checklist') showChecklist(currentChecklist);
   if (id==='picks') renderPicks();
-  if (id==='generator') initGenerator();
+  if (id==='generator') { initGenerator(); loadPicksForGenerator(); }
 };
 
 // ── MODALS ──
@@ -1562,6 +1572,103 @@ function getDaysSinceStart() {
 
 // ── GENERATOR ──
 let genPickCount = 0;
+
+async function loadPicksForGenerator() {
+  const container = document.getElementById('gen-picks-loader');
+  if (!currentUser) return;
+  try {
+    const q = query(collection(db,'picks'), where('uid','==',currentUser.uid), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    const picks = [];
+    snap.forEach(d => picks.push({id:d.id,...d.data()}));
+
+    // Also load from all users (so admin sees Juan Guillermo's picks)
+    const qAll = query(collection(db,'picks'), orderBy('createdAt','desc'));
+    const snapAll = await getDocs(qAll);
+    const allPicks = [];
+    snapAll.forEach(d => {
+      const p = {id:d.id,...d.data()};
+      if (!allPicks.find(x=>x.id===p.id)) allPicks.push(p);
+    });
+
+    const pending = allPicks.filter(p=>p.result==='pending').slice(0,10);
+
+    if (!pending.length) {
+      container.innerHTML = '<div style="color:var(--dim);font-size:13px">No hay picks pendientes. Juan Guillermo debe agregar picks primero.</div>';
+      return;
+    }
+
+    container.innerHTML = pending.map(p => `
+      <div onclick="fillGeneratorFromPick('${p.id}')"
+           style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
+                  background:var(--s3);border-radius:8px;margin-bottom:6px;cursor:pointer;
+                  border:1px solid transparent;transition:border-color .15s"
+           onmouseover="this.style.borderColor='var(--gold)'"
+           onmouseout="this.style.borderColor='transparent'">
+        <div>
+          <div style="font-size:14px;font-weight:600">${p.match||'Sin partido'}</div>
+          <div style="font-size:11px;color:var(--dim);margin-top:2px">${p.sport||''} · ${p.bet||''} · @${p.odds||'—'}</div>
+        </div>
+        <span style="font-size:11px;color:var(--gold);letter-spacing:1px">USAR →</span>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--dim);font-size:13px">Error cargando picks</div>';
+  }
+}
+
+// Cache of all picks for generator
+let genAllPicks = [];
+
+window.fillGeneratorFromPick = async (id) => {
+  // Get all picks to find the one
+  try {
+    const qAll = query(collection(db,'picks'), orderBy('createdAt','desc'));
+    const snap = await getDocs(qAll);
+    const allPicks = [];
+    snap.forEach(d => allPicks.push({id:d.id,...d.data()}));
+    genAllPicks = allPicks;
+  } catch(e) {}
+
+  const pick = genAllPicks.find(p=>p.id===id) || allPicksCache.find(p=>p.id===id);
+  if (!pick) { showToast('Pick no encontrado'); return; }
+
+  // Parse match — try to split "Local vs Visitante"
+  const match = pick.match || '';
+  const parts = match.split(/\s+vs\.?\s+/i);
+  if (parts.length >= 2) {
+    document.getElementById('g-local').value = parts[0].trim();
+    document.getElementById('g-visitante').value = parts[1].trim();
+  }
+
+  // Fill liga
+  if (pick.liga) document.getElementById('g-liga').value = pick.liga;
+
+  // Reset and fill first pick row
+  genPickCount = 0;
+  document.getElementById('gen-picks-rows').innerHTML = '';
+  addPickRow();
+
+  setTimeout(() => {
+    const tipo = document.getElementById('g-tipo-1');
+    const subtipo = document.getElementById('g-subtipo-1');
+    const cuota = document.getElementById('g-cuota-1');
+    const stake = document.getElementById('g-stake-1');
+    if (tipo) tipo.value = (pick.bet||'').toUpperCase();
+    if (subtipo) subtipo.value = '';
+    if (cuota) cuota.value = pick.odds||'';
+    if (stake) stake.value = pick.stake||'';
+  }, 100);
+
+  // Set date to today
+  const today = new Date();
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('g-fecha').value = today.getDate() + ' ' + months[today.getMonth()];
+
+  showToast('✦ Pick cargado — completá los campos faltantes');
+
+  // Scroll to form
+  document.getElementById('g-liga').scrollIntoView({behavior:'smooth', block:'center'});
+};
 
 function initGenerator() {
   genPickCount = 0;
