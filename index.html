@@ -56,7 +56,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
 .auth-error { color: var(--red); font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
 
 /* ── APP SHELL ── */
-#screen-app { padding-bottom: 72px; }
+#screen-app { padding-bottom: 72px; overflow-y: auto; }
 .topbar { position: sticky; top: 0; z-index: 50; background: var(--s1); border-bottom: 1px solid var(--border);
   padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
 .topbar-brand { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700;
@@ -210,8 +210,15 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 /* ── RESPONSIVE ── */
-@media(min-width: 600px) { #screen-app { max-width: 480px; margin: 0 auto; }
-  .bottom-nav { max-width: 480px; left: 50%; transform: translateX(-50%); } }
+@media(min-width: 600px) {
+  #screen-app { max-width: 480px; margin: 0 auto; position: relative; }
+  .bottom-nav { max-width: 480px; left: 50%; transform: translateX(-50%); }
+  .topbar { max-width: 480px; }
+}
+@media(max-width: 599px) {
+  #screen-auth { padding: 24px 16px; }
+  .auth-card { padding: 24px 18px; }
+}
 </style>
 </head>
 <body>
@@ -417,50 +424,47 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
       </div>
     </div>
   </div>
-</div>
 
-<!-- ══ GENERADOR ══ -->
-<div id="page-generator" class="page">
-  <div class="page-title">🎨 Generador de Imágenes</div>
-
-  <div class="form-section">
-    <div class="form-title">Datos del partido</div>
-    <div class="row2">
-      <div class="field"><label>Liga / Torneo</label><input id="g-liga" type="text" placeholder="Ej: Bundesliga"/></div>
-      <div class="field"><label>Fecha</label><input id="g-fecha" type="text" placeholder="Ej: 19 Abril"/></div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>Hora</label><input id="g-hora" type="text" placeholder="Ej: 13:30"/></div>
-      <div class="field"><label>Deporte</label>
-        <select id="g-deporte">
-          <option>⚽ Fútbol</option><option>🏀 NBA</option><option>🏈 NFL</option>
-          <option>🎾 Tenis</option><option>🥊 MMA</option><option>⚾ MLB</option>
-        </select>
+  <!-- ══ GENERADOR ══ -->
+  <div id="page-generator" class="page">
+    <div class="page-title">🎨 Generador de Imágenes</div>
+    <div class="form-section">
+      <div class="form-title">Datos del partido</div>
+      <div class="row2">
+        <div class="field"><label>Liga / Torneo</label><input id="g-liga" type="text" placeholder="Ej: Bundesliga"/></div>
+        <div class="field"><label>Fecha</label><input id="g-fecha" type="text" placeholder="Ej: 19 Abril"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Hora</label><input id="g-hora" type="text" placeholder="Ej: 13:30"/></div>
+        <div class="field"><label>Deporte</label>
+          <select id="g-deporte">
+            <option>⚽ Fútbol</option><option>🏀 NBA</option><option>🏈 NFL</option>
+            <option>🎾 Tenis</option><option>🥊 MMA</option><option>⚾ MLB</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Equipo Local</label><input id="g-local" type="text" placeholder="Ej: M'Gladbach"/></div>
+        <div class="field"><label>Equipo Visitante</label><input id="g-visitante" type="text" placeholder="Ej: Mainz 05"/></div>
       </div>
     </div>
-    <div class="row2">
-      <div class="field"><label>Equipo Local</label><input id="g-local" type="text" placeholder="Ej: M'Gladbach"/></div>
-      <div class="field"><label>Equipo Visitante</label><input id="g-visitante" type="text" placeholder="Ej: Mainz 05"/></div>
+    <div class="form-section">
+      <div class="section-head">
+        <div class="form-title">Picks (máx 3)</div>
+        <button class="btn-outline btn-sm" onclick="addPickRow()">+ Pick</button>
+      </div>
+      <div id="gen-picks-rows"></div>
+    </div>
+    <button class="btn-primary" onclick="generatePickImage()" style="margin-bottom:16px">🎨 Generar imagen</button>
+    <div class="form-section" id="gen-preview-section" style="display:none">
+      <div class="section-head">
+        <div class="form-title">Preview</div>
+        <button class="btn-outline btn-sm" onclick="downloadPickImage()">↓ Descargar PNG</button>
+      </div>
+      <canvas id="gen-canvas" style="width:100%;border-radius:8px;display:block;margin-top:8px"></canvas>
     </div>
   </div>
 
-  <div class="form-section">
-    <div class="section-head">
-      <div class="form-title">Picks (máx 3)</div>
-      <button class="btn-outline btn-sm" onclick="addPickRow()">+ Pick</button>
-    </div>
-    <div id="gen-picks-rows"></div>
-  </div>
-
-  <button class="btn-primary" onclick="generatePickImage()" style="margin-bottom:16px">🎨 Generar imagen</button>
-
-  <div class="form-section" id="gen-preview-section" style="display:none">
-    <div class="section-head">
-      <div class="form-title">Preview</div>
-      <button class="btn-outline btn-sm" onclick="downloadPickImage()">↓ Descargar PNG</button>
-    </div>
-    <canvas id="gen-canvas" style="width:100%;border-radius:8px;display:block;margin-top:8px"></canvas>
-  </div>
 </div>
 
 <!-- ══ BOTTOM NAV ══ -->
@@ -472,7 +476,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     <span class="nav-icon">🎨</span><span class="nav-label">Imagen</span>
   </button>
   <button class="nav-btn" onclick="goPage('checklist')" id="nav-checklist">
-    <span class="nav-icon">✅</span><span class="nav-label">Tareas</span>
+    <span class="nav-icon">📋</span><span class="nav-label">Tareas</span>
   </button>
   <button class="nav-btn" onclick="goPage('picks')" id="nav-picks">
     <span class="nav-icon">🎯</span><span class="nav-label">Picks</span>
