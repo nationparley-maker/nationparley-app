@@ -681,7 +681,11 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
         </select>
       </div>
       <div class="field"><label>Canal</label>
-        <select id="p-tier"><option value="free">Gratis</option><option value="vip">VIP</option></select>
+        <select id="p-tier">
+          <option value="free">Gratis</option>
+          <option value="vip">VIP</option>
+          <option value="parlay">Solo Parlay</option>
+        </select>
       </div>
     </div>
     <div class="field"><label>Partido</label><input id="p-match" type="text" placeholder="Ej: Real Madrid vs Barcelona"/></div>
@@ -1334,7 +1338,10 @@ async function renderPicksSimples() {
         <div class="pick-header">
           <div style="display:flex;gap:8px;align-items:center">
             <div class="pick-sport">${p.sport||''}</div>
-            <span class="pick-tag ${p.tier==='vip'?'tmpl-vip':'tmpl-free'}" style="font-size:10px">${(p.tier||'free').toUpperCase()}</span>
+            <span class="pick-tag ${p.tier==='vip'?'tmpl-vip':p.tier==='parlay'?'':'tmpl-free'}" 
+                style="${p.tier==='parlay'?'background:rgba(155,89,182,.15);color:#9B59B6;border:1px solid rgba(155,89,182,.3)':''};font-size:10px">
+                ${p.tier==='vip'?'VIP':p.tier==='parlay'?'SOLO PARLAY':'FREE'}
+          </span>
           </div>
           <span class="pick-result ${p.result==='win'?'result-win':p.result==='loss'?'result-loss':p.result==='void'?'':'result-pending'}">
             ${p.result==='win'?'✅ Ganó':p.result==='loss'?'❌ Perdió':p.result==='void'?'↩ Anulado':'⏳ Pendiente'}
