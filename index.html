@@ -370,15 +370,52 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     </div>
   </div>
 
-  <!-- PICKS -->
+  <!-- PICKS PRO -->
   <div id="page-picks" class="page">
-    <div class="page-title">🎯 Picks</div>
-    <div class="section-head">
-      <div style="font-size:11px;letter-spacing:3px;color:var(--dim)">REGISTRO</div>
-      <button class="btn-outline btn-sm" onclick="openModal('modal-pick')">+ Nuevo Pick</button>
+    <div class="page-title">🎯 Picks Pro</div>
+
+    <!-- Stats rápidas -->
+    <div class="grid2" id="picks-stats" style="margin-bottom:14px"></div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;background:var(--s1);border-radius:8px;padding:4px">
+      <button class="auth-tab active" id="tab-simples" onclick="switchPickTab('simples')">Simples</button>
+      <button class="auth-tab" id="tab-parlays" onclick="switchPickTab('parlays')">Parlays</button>
+      <button class="auth-tab" id="tab-historial" onclick="switchPickTab('historial')">Historial</button>
     </div>
-    <div id="picks-stats" class="grid2" style="margin-bottom:14px"></div>
-    <div id="picks-list"></div>
+
+    <!-- TAB: SIMPLES -->
+    <div id="picks-tab-simples">
+      <div class="section-head">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--dim)">PICKS DEL DÍA</div>
+        <button class="btn-outline btn-sm" onclick="openModal('modal-pick')">+ Nuevo</button>
+      </div>
+      <div id="picks-list"></div>
+    </div>
+
+    <!-- TAB: PARLAYS -->
+    <div id="picks-tab-parlays" style="display:none">
+      <div class="section-head">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--dim)">APUESTAS COMBINADAS</div>
+        <button class="btn-outline btn-sm" onclick="openModal('modal-parlay')">+ Parlay</button>
+      </div>
+      <div class="alert alert-info" style="margin-bottom:12px">
+        💡 Seleccioná picks existentes para armar una combinada. La cuota se calcula automáticamente.
+      </div>
+      <div id="parlays-list"></div>
+    </div>
+
+    <!-- TAB: HISTORIAL -->
+    <div id="picks-tab-historial" style="display:none">
+      <div class="card">
+        <div class="card-title">Win Rate por deporte</div>
+        <div id="historial-sport"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Todos los picks</div>
+        <div id="historial-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -530,29 +567,76 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
 <!-- Pick modal -->
 <div class="modal-overlay" id="modal-pick" onclick="closeModalOutside(event,'modal-pick')">
   <div class="modal">
-    <div class="modal-title">Nuevo Pick</div>
+    <div class="modal-title" id="pick-modal-title">Nuevo Pick</div>
     <div class="row2">
       <div class="field"><label>Deporte</label>
-        <select id="p-sport"><option>⚽ Fútbol</option><option>🏀 NBA</option><option>🏈 NFL</option><option>🎾 Tenis</option><option>🥊 MMA</option></select>
+        <select id="p-sport">
+          <option>⚽ Fútbol</option><option>🏀 NBA</option><option>🏈 NFL</option>
+          <option>🎾 Tenis</option><option>🥊 MMA</option><option>⚾ MLB</option>
+        </select>
       </div>
-      <div class="field"><label>Tipo</label>
+      <div class="field"><label>Canal</label>
         <select id="p-tier"><option value="free">Gratis</option><option value="vip">VIP</option></select>
       </div>
     </div>
     <div class="field"><label>Partido</label><input id="p-match" type="text" placeholder="Ej: Real Madrid vs Barcelona"/></div>
+    <div class="field"><label>Liga / Torneo</label><input id="p-liga" type="text" placeholder="Ej: Champions League"/></div>
     <div class="row2">
-      <div class="field"><label>Apuesta</label><input id="p-bet" type="text" placeholder="Ej: 1X2 Local"/></div>
+      <div class="field"><label>Tipo de apuesta</label><input id="p-bet" type="text" placeholder="Ej: Ambos marcan"/></div>
       <div class="field"><label>Cuota</label><input id="p-odds" type="text" placeholder="1.85"/></div>
     </div>
     <div class="row2">
+      <div class="field"><label>Stake recomendado</label><input id="p-stake" type="text" placeholder="Ej: 1.5"/></div>
       <div class="field"><label>Confianza %</label><input id="p-conf" type="number" placeholder="75" min="50" max="99"/></div>
-      <div class="field"><label>Resultado</label>
-        <select id="p-result"><option value="pending">Pendiente</option><option value="win">Ganó ✅</option><option value="loss">Perdió ❌</option></select>
-      </div>
     </div>
+    <div class="field"><label>Análisis breve</label>
+      <textarea id="p-analysis" style="width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:11px 14px;outline:none;resize:none;height:70px;line-height:1.4" placeholder="Ej: Ambos equipos ofensivos, cuota con valor..."></textarea>
+    </div>
+    <div class="field"><label>Resultado</label>
+      <select id="p-result">
+        <option value="pending">⏳ Pendiente</option>
+        <option value="win">✅ Ganó</option>
+        <option value="loss">❌ Perdió</option>
+        <option value="void">↩ Anulado</option>
+      </select>
+    </div>
+    <input type="hidden" id="p-edit-id"/>
     <div class="modal-actions">
       <button class="btn-outline btn-sm" onclick="closeModal('modal-pick')">Cancelar</button>
       <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="savePick()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Parlay modal -->
+<div class="modal-overlay" id="modal-parlay" onclick="closeModalOutside(event,'modal-parlay')">
+  <div class="modal">
+    <div class="modal-title">Nueva Combinada / Parlay</div>
+    <div class="field"><label>Nombre del parlay</label>
+      <input id="pl-name" type="text" placeholder="Ej: Combinada del domingo"/>
+    </div>
+    <div class="field"><label>Stake total</label>
+      <input id="pl-stake" type="text" placeholder="Ej: 2.0"/>
+    </div>
+    <div class="field"><label>Seleccioná los picks a combinar</label>
+      <div id="pl-picks-select" style="background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:12px;max-height:200px;overflow-y:auto"></div>
+    </div>
+    <div class="card" style="margin:8px 0 0;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--dim)">Cuota combinada</span>
+        <span style="font-size:28px;font-weight:800;color:var(--gold-light)" id="pl-combined-odds">—</span>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>Resultado</label>
+      <select id="pl-result">
+        <option value="pending">⏳ Pendiente</option>
+        <option value="win">✅ Ganó</option>
+        <option value="loss">❌ Perdió</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline btn-sm" onclick="closeModal('modal-parlay')">Cancelar</button>
+      <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="saveParlay()">Guardar</button>
     </div>
   </div>
 </div>
@@ -753,10 +837,6 @@ window.goPage = (id) => {
 };
 
 // ── MODALS ──
-window.openModal = (id) => {
-  if (id==='modal-finance') document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById(id).classList.add('open');
-};
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 window.closeModalOutside = (e, id) => { if(e.target.id===id) closeModal(id); };
 
@@ -1084,66 +1164,312 @@ function updateChecklistProgress(cl) {
   if (pct===100) showToast('🎉 ¡Rutina completada!');
 }
 
-// ── PICKS ──
+// ── PICKS PRO ──
+let currentPickTab = 'simples';
+let allPicksCache = [];
+
+window.switchPickTab = (tab) => {
+  currentPickTab = tab;
+  ['simples','parlays','historial'].forEach(t => {
+    document.getElementById(`picks-tab-${t}`).style.display = t===tab ? '' : 'none';
+    document.getElementById(`tab-${t}`).classList.toggle('active', t===tab);
+  });
+  if (tab==='simples')   renderPicksSimples();
+  if (tab==='parlays')   renderParlays();
+  if (tab==='historial') renderHistorial();
+};
+
 async function renderPicks() {
+  await renderPicksStats();
+  renderPicksSimples();
+}
+
+async function renderPicksStats() {
+  try {
+    const q = query(collection(db,'picks'), where('uid','==',currentUser.uid), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    allPicksCache = [];
+    snap.forEach(d => allPicksCache.push({id:d.id,...d.data()}));
+    const resolved = allPicksCache.filter(p=>p.result!=='pending'&&p.result!=='void');
+    const wins = resolved.filter(p=>p.result==='win').length;
+    const wr = resolved.length > 0 ? Math.round((wins/resolved.length)*100) : 0;
+    const today = allPicksCache.filter(p => {
+      if (!p.createdAt) return false;
+      const d = p.createdAt.toDate ? p.createdAt.toDate() : new Date(p.createdAt);
+      return d.toDateString() === new Date().toDateString();
+    }).length;
+    document.getElementById('picks-stats').innerHTML = `
+      <div class="card" style="margin:0">
+        <div class="card-accent" style="background:var(--gold)"></div>
+        <div class="card-title">Total picks</div>
+        <div class="card-value" style="color:var(--gold)">${allPicksCache.length}</div>
+        <div class="card-sub">📅 ${today} hoy</div>
+      </div>
+      <div class="card" style="margin:0">
+        <div class="card-accent" style="background:${wr>=60?'var(--green)':'var(--red)'}"></div>
+        <div class="card-title">Win Rate</div>
+        <div class="card-value" style="color:${wr>=60?'var(--green)':'var(--red)'}">${wr}%</div>
+        <div class="card-sub">${wins}W / ${resolved.length-wins}L</div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('picks-stats').innerHTML = '';
+  }
+}
+
+async function renderPicksSimples() {
   try {
     const q = query(collection(db,'picks'), where('uid','==',currentUser.uid), orderBy('createdAt','desc'));
     const snap = await getDocs(q);
     const picks = [];
     snap.forEach(d => picks.push({id:d.id,...d.data()}));
-
-    const wins = picks.filter(p=>p.result==='win').length;
-    const total = picks.filter(p=>p.result!=='pending').length;
-    const wr = total > 0 ? Math.round((wins/total)*100) : 0;
-
-    document.getElementById('picks-stats').innerHTML = `
-      <div class="card" style="margin:0">
-        <div class="card-title">Total picks</div>
-        <div class="card-value" style="color:var(--gold)">${picks.length}</div>
-      </div>
-      <div class="card" style="margin:0">
-        <div class="card-title">Win Rate</div>
-        <div class="card-value" style="color:${wr>=60?'var(--green)':'var(--red)'}">${wr}%</div>
-      </div>`;
-
+    allPicksCache = picks;
     document.getElementById('picks-list').innerHTML = picks.length ? picks.map(p => `
       <div class="pick-card">
         <div class="pick-header">
-          <div class="pick-sport">${p.sport}</div>
-          <span class="pick-result ${p.result==='win'?'result-win':p.result==='loss'?'result-loss':'result-pending'}">
-            ${p.result==='win'?'✅ Ganó':p.result==='loss'?'❌ Perdió':'⏳ Pendiente'}
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="pick-sport">${p.sport||''}</div>
+            <span class="pick-tag ${p.tier==='vip'?'tmpl-vip':'tmpl-free'}" style="font-size:10px">${(p.tier||'free').toUpperCase()}</span>
+          </div>
+          <span class="pick-result ${p.result==='win'?'result-win':p.result==='loss'?'result-loss':p.result==='void'?'':'result-pending'}">
+            ${p.result==='win'?'✅ Ganó':p.result==='loss'?'❌ Perdió':p.result==='void'?'↩ Anulado':'⏳ Pendiente'}
           </span>
         </div>
-        <div class="pick-match">${p.match}</div>
+        <div class="pick-match">${p.match||''}</div>
+        ${p.liga?`<div style="font-size:12px;color:var(--dim);margin-bottom:6px">${p.liga}</div>`:''}
         <div class="pick-meta">
-          <span class="pick-tag">${p.bet}</span>
-          <span class="pick-tag">@${p.odds}</span>
-          <span class="pick-tag">${p.conf||75}% confianza</span>
-          <span class="pick-tag ${p.tier==='vip'?'tmpl-vip':'tmpl-free'}">${(p.tier||'free').toUpperCase()}</span>
+          <span class="pick-tag">${p.bet||''}</span>
+          <span class="pick-tag">@${p.odds||'—'}</span>
+          ${p.stake?`<span class="pick-tag">Stake: ${p.stake}</span>`:''}
+          ${p.conf?`<span class="pick-tag">${p.conf}% conf.</span>`:''}
+        </div>
+        ${p.analysis?`<div style="font-size:13px;color:var(--dim);margin-top:8px;line-height:1.4;font-style:italic">"${p.analysis}"</div>`:''}
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+          <button class="btn-outline btn-sm" onclick="editPick('${p.id}')">✏ Editar</button>
+          <button class="btn-outline btn-sm" onclick="updatePickResult('${p.id}','win')" style="color:var(--green);border-color:var(--green)">✅</button>
+          <button class="btn-outline btn-sm" onclick="updatePickResult('${p.id}','loss')" style="color:var(--red);border-color:var(--red)">❌</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deletePick('${p.id}')">🗑</button>
         </div>
       </div>`).join('')
-    : '<div style="color:var(--dim);font-size:14px;padding:12px 0">Sin picks registrados aún</div>';
+    : '<div style="color:var(--dim);font-size:14px;padding:20px 0;text-align:center">Sin picks aún — tu novio puede agregar el primero 👆</div>';
   } catch(e) {
-    document.getElementById('picks-list').innerHTML = '<div style="color:var(--dim);font-size:13px">Agrega tu primer pick →</div>';
+    document.getElementById('picks-list').innerHTML = '<div style="color:var(--dim);font-size:13px">Agrega el primer pick</div>';
   }
 }
 
+window.editPick = (id) => {
+  const p = allPicksCache.find(x=>x.id===id);
+  if (!p) return;
+  document.getElementById('pick-modal-title').textContent = 'Editar Pick';
+  document.getElementById('p-sport').value = p.sport||'⚽ Fútbol';
+  document.getElementById('p-tier').value = p.tier||'free';
+  document.getElementById('p-match').value = p.match||'';
+  document.getElementById('p-liga').value = p.liga||'';
+  document.getElementById('p-bet').value = p.bet||'';
+  document.getElementById('p-odds').value = p.odds||'';
+  document.getElementById('p-stake').value = p.stake||'';
+  document.getElementById('p-conf').value = p.conf||'';
+  document.getElementById('p-analysis').value = p.analysis||'';
+  document.getElementById('p-result').value = p.result||'pending';
+  document.getElementById('p-edit-id').value = id;
+  openModal('modal-pick');
+};
+
+window.updatePickResult = async (id, result) => {
+  const { doc: fbDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  await setDoc(doc(db,'picks',id), {result}, {merge:true});
+  renderPicks();
+  showToast(result==='win'?'✅ Pick ganado':'❌ Pick perdido');
+};
+
+window.deletePick = async (id) => {
+  if (!confirm('¿Eliminar este pick?')) return;
+  await deleteDoc(doc(db,'picks',id));
+  renderPicks();
+  showToast('Pick eliminado');
+};
+
 window.savePick = async () => {
-  await addDoc(collection(db,'picks'), {
+  const editId = document.getElementById('p-edit-id').value;
+  const data = {
     uid: currentUser.uid,
     sport: document.getElementById('p-sport').value,
     tier: document.getElementById('p-tier').value,
     match: document.getElementById('p-match').value,
+    liga: document.getElementById('p-liga').value,
     bet: document.getElementById('p-bet').value,
     odds: document.getElementById('p-odds').value,
+    stake: document.getElementById('p-stake').value,
     conf: document.getElementById('p-conf').value,
+    analysis: document.getElementById('p-analysis').value,
     result: document.getElementById('p-result').value,
-    createdAt: serverTimestamp()
-  });
+    updatedAt: serverTimestamp()
+  };
+  if (editId) {
+    await setDoc(doc(db,'picks',editId), data, {merge:true});
+    showToast('✦ Pick actualizado');
+  } else {
+    data.createdAt = serverTimestamp();
+    await addDoc(collection(db,'picks'), data);
+    showToast('✦ Pick guardado');
+  }
+  document.getElementById('p-edit-id').value = '';
+  document.getElementById('pick-modal-title').textContent = 'Nuevo Pick';
   closeModal('modal-pick');
   renderPicks();
-  showToast('✦ Pick guardado');
 };
+
+// ── PARLAYS ──
+async function renderParlays() {
+  try {
+    const q = query(collection(db,'parlays'), where('uid','==',currentUser.uid), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    const parlays = [];
+    snap.forEach(d => parlays.push({id:d.id,...d.data()}));
+    document.getElementById('parlays-list').innerHTML = parlays.length ? parlays.map(pl => {
+      const combinedOdds = (pl.picks||[]).reduce((acc,p)=>acc*(parseFloat(p.odds)||1),1).toFixed(2);
+      return `<div class="pick-card">
+        <div class="pick-header">
+          <div style="font-size:16px;font-weight:700">${pl.name||'Parlay'}</div>
+          <span class="pick-result ${pl.result==='win'?'result-win':pl.result==='loss'?'result-loss':'result-pending'}">
+            ${pl.result==='win'?'✅ Ganó':pl.result==='loss'?'❌ Perdió':'⏳ Pendiente'}
+          </span>
+        </div>
+        <div style="font-size:22px;font-weight:800;color:var(--gold-light);margin:6px 0">@${combinedOdds} combinada</div>
+        ${pl.stake?`<div style="font-size:13px;color:var(--dim);margin-bottom:8px">Stake: ${pl.stake}</div>`:''}
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${(pl.picks||[]).map(p=>`
+            <div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--s3);border-radius:6px;font-size:13px">
+              <span>${p.match} — ${p.bet}</span>
+              <span style="color:var(--gold)">@${p.odds}</span>
+            </div>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+          <button class="btn-outline btn-sm" onclick="updateParlayResult('${pl.id}','win')" style="color:var(--green);border-color:var(--green)">✅ Ganó</button>
+          <button class="btn-outline btn-sm" onclick="updateParlayResult('${pl.id}','loss')" style="color:var(--red);border-color:var(--red)">❌ Perdió</button>
+          <button class="btn-outline btn-sm btn-danger" onclick="deleteParlay('${pl.id}')">🗑</button>
+        </div>
+      </div>`;
+    }).join('')
+    : '<div style="color:var(--dim);font-size:14px;padding:20px 0;text-align:center">Sin parlays aún — creá tu primera combinada 👆</div>';
+  } catch(e) {
+    document.getElementById('parlays-list').innerHTML = '<div style="color:var(--dim);font-size:13px">Agrega tu primer parlay</div>';
+  }
+}
+
+window.openModal = (id) => {
+  if (id==='modal-finance') document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  if (id==='modal-parlay') loadParlayPickSelector();
+  if (id==='modal-pick') {
+    if (!document.getElementById('p-edit-id').value) {
+      document.getElementById('pick-modal-title').textContent = 'Nuevo Pick';
+      ['p-match','p-liga','p-bet','p-odds','p-stake','p-conf','p-analysis'].forEach(f => document.getElementById(f).value='');
+      document.getElementById('p-result').value = 'pending';
+      document.getElementById('p-sport').value = '⚽ Fútbol';
+      document.getElementById('p-tier').value = 'free';
+    }
+  }
+  document.getElementById(id).classList.add('open');
+};
+
+function loadParlayPickSelector() {
+  const container = document.getElementById('pl-picks-select');
+  if (!allPicksCache.length) {
+    container.innerHTML = '<div style="color:var(--dim);font-size:13px">No hay picks disponibles. Agrega picks primero.</div>';
+    return;
+  }
+  container.innerHTML = allPicksCache.filter(p=>p.result==='pending'||p.result==='win').map(p => `
+    <label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer">
+      <input type="checkbox" class="parlay-pick-cb" data-id="${p.id}" data-match="${p.match}" data-bet="${p.bet}" data-odds="${p.odds}"
+        onchange="calcParlayOdds()" style="width:18px;height:18px;accent-color:var(--gold)"/>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600">${p.match}</div>
+        <div style="font-size:12px;color:var(--dim)">${p.bet} · @${p.odds}</div>
+      </div>
+    </label>`).join('');
+  document.getElementById('pl-combined-odds').textContent = '—';
+}
+
+window.calcParlayOdds = () => {
+  const checked = document.querySelectorAll('.parlay-pick-cb:checked');
+  if (!checked.length) { document.getElementById('pl-combined-odds').textContent = '—'; return; }
+  const combined = Array.from(checked).reduce((acc,cb) => acc * (parseFloat(cb.dataset.odds)||1), 1);
+  document.getElementById('pl-combined-odds').textContent = combined.toFixed(2);
+};
+
+window.saveParlay = async () => {
+  const checked = document.querySelectorAll('.parlay-pick-cb:checked');
+  if (!checked.length) { showToast('Seleccioná al menos 2 picks'); return; }
+  const picks = Array.from(checked).map(cb => ({
+    id: cb.dataset.id, match: cb.dataset.match, bet: cb.dataset.bet, odds: cb.dataset.odds
+  }));
+  await addDoc(collection(db,'parlays'), {
+    uid: currentUser.uid,
+    name: document.getElementById('pl-name').value || 'Parlay',
+    stake: document.getElementById('pl-stake').value,
+    picks,
+    result: document.getElementById('pl-result').value,
+    createdAt: serverTimestamp()
+  });
+  closeModal('modal-parlay');
+  renderParlays();
+  showToast('✦ Parlay guardado');
+};
+
+window.updateParlayResult = async (id, result) => {
+  await setDoc(doc(db,'parlays',id), {result}, {merge:true});
+  renderParlays();
+  showToast(result==='win'?'✅ Parlay ganado':'❌ Parlay perdido');
+};
+
+window.deleteParlay = async (id) => {
+  if (!confirm('¿Eliminar este parlay?')) return;
+  await deleteDoc(doc(db,'parlays',id));
+  renderParlays();
+  showToast('Parlay eliminado');
+};
+
+// ── HISTORIAL ──
+async function renderHistorial() {
+  const picks = allPicksCache.length ? allPicksCache : await (async()=>{
+    const q = query(collection(db,'picks'), where('uid','==',currentUser.uid), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    const arr = [];
+    snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+    return arr;
+  })();
+
+  // By sport
+  const sports = {};
+  picks.forEach(p => {
+    const s = p.sport||'Otro';
+    if (!sports[s]) sports[s] = {w:0,l:0};
+    if (p.result==='win') sports[s].w++;
+    else if (p.result==='loss') sports[s].l++;
+  });
+  document.getElementById('historial-sport').innerHTML = Object.entries(sports).map(([s,v])=>{
+    const total = v.w+v.l;
+    const wr = total>0?Math.round((v.w/total)*100):0;
+    return `<div class="metric-row">
+      <div class="metric-label">${s}</div>
+      <div style="text-align:right">
+        <div class="metric-val" style="color:${wr>=60?'var(--green)':'var(--red)'}">${wr}%</div>
+        <div class="metric-goal">${v.w}W / ${v.l}L</div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--dim);font-size:13px">Sin datos aún</div>';
+
+  // Full list compact
+  document.getElementById('historial-list').innerHTML = picks.map(p=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:600">${p.match||'—'}</div>
+        <div style="font-size:11px;color:var(--dim)">${p.bet||''} · @${p.odds||'—'}</div>
+      </div>
+      <span class="pick-result ${p.result==='win'?'result-win':p.result==='loss'?'result-loss':'result-pending'}" style="font-size:11px">
+        ${p.result==='win'?'✅':p.result==='loss'?'❌':'⏳'}
+      </span>
+    </div>`).join('') || '<div style="color:var(--dim);font-size:13px">Sin picks en el historial</div>';
+}
 
 // ── NOTIFICATIONS ──
 function scheduleNotifications() {
