@@ -1673,68 +1673,83 @@ function getDaysSinceStart() {
 function renderDocs() {
   const sections = [
     { title:'1. Modelo de Negocio', color:'var(--green)', content:`
-      <b>Canal Gratuito:</b> Picks con 60-65% acierto sostenido. El 70%+ es excepcional, no se promete como base. Objetivo: generar confianza y audiencia.<br><br>
+      <b>Canal Gratuito:</b> Picks con 60-65% acierto sostenido. El 70%+ es excepcional, no se promete como base.<br><br>
       <b>VIP Estándar ($20.000 COP/mes sin IVA):</b> Picks exclusivos, análisis, gestión de bankroll. Win rate objetivo: 62-68%.<br><br>
-      <b>VIP IA Premium ($35.000 COP/mes sin IVA):</b> Todo lo anterior + picks personalizados por deporte y perfil de riesgo, alertas de value bets, Kelly Criterion personalizado.<br><br>
-      <i>Mientras no factures electrónicamente, el precio final es sin IVA. Al superar $4.550.000 COP/mes (~228 suscriptores VIP), debés emitir factura electrónica con IVA del 19%.</i><br><br>
-      <b>Descuento renovación anticipada:</b> 15% = $17.000 COP (sin IVA).<br><br>
+      <b>VIP IA Premium ($35.000 COP/mes sin IVA):</b> Todo lo anterior + picks personalizados, alertas de value bets, Kelly Criterion.<br><br>
+      <i>Al superar $6.100.000 COP/mes (~305 suscriptores, equivalente a 3.5 SMLV 2026 = $1.750.905 x 3.5), debés emitir factura electrónica.</i><br><br>
+      <b>Descuento renovación anticipada:</b> 15% = $17.000 COP.<br><br>
       <b>Prueba VIP 7 días gratis:</b> Para usuarios con 5+ interacciones en el canal free.<br><br>
-      <b>Afiliados:</b> Betsson, Codere, Wplay, 1xBet — comisión por cada usuario registrado.` },
+      <b>Tasa de conversión free→VIP:</b> Típica en Colombia: 3-7%. Meta con IA: 5%.<br><br>
+      <b>Afiliados:</b> Betsson, Codere, Wplay — revenue share 20-40%. Verificar licencias Coljuegos.` },
 
     { title:'2. Proyección de Ingresos (en COP)', color:'var(--gold)', content:`
-      <b>Mes 1:</b> 10-15 VIP · VIP: $200k-$300k + Afiliados: $200k-$400k = <b>Total: $400k-$700k COP</b><br><br>
-      <b>Mes 3:</b> 80-100 VIP · VIP: $1.6M-$2.0M + Afiliados: $1.2M-$2.0M = <b>Total: $2.8M-$4.0M COP</b><br><br>
-      <b>Mes 6:</b> 400-500 VIP · VIP: $8.0M-$10.0M + Afiliados: $6.0M-$8.0M = <b>Total: $14.0M-$18.0M COP</b><br><br>
-      <b>Mes 12:</b> 1.000+ VIP · VIP: $20.0M+ + Afiliados: $12.0M+ = <b>Total: $32.0M+ COP</b><br><br>
-      <i>Tasa de cambio referencia: $4.000 COP/USD. Las proyecciones principales son en COP.</i><br><br>
+      <b>Proyección conservadora y realista para Colombia 2026:</b><br><br>
+      <b>Mes 1:</b> 10-15 VIP · $200k-$300k + Afiliados $200k-$400k = <b>Total: $400k-$700k COP</b><br><br>
+      <b>Mes 3:</b> 80-100 VIP · $1.6M-$2.0M + Afiliados $1.2M-$2.0M = <b>Total: $2.8M-$4.0M COP</b><br><br>
+      <b>Mes 6:</b> 400-500 VIP · $8.0M-$10.0M + Afiliados $6.0M-$8.0M = <b>Total: $14.0M-$18.0M COP</b><br><br>
+      <b>Mes 12 (realista Colombia):</b> 500-1.000 VIP · <b>Total: $10.0M-$20.0M COP</b><br><br>
+      <i>Mercado colombiano: ~50-100 canales tipsters activos. Proyecciones más altas requieren diferenciación fuerte por IA y credibilidad verificada (Tipstrr).</i><br><br>
+      <i>Tasa de cambio referencia: $4.000 COP/USD.</i><br><br>
       <b>Fondo impuestos:</b> Reservá siempre el 19% de ingresos.<br>
-      <b>Umbral facturación electrónica 2026:</b> $4.550.000 COP/mes (3.5 SMLV). Usar solución gratuita DIAN para menos de 1.000 facturas/mes.` },
+      <b>Umbral facturación 2026:</b> $6.100.000 COP/mes. Usar solución gratuita DIAN.` },
 
     { title:'3. Rutina Diaria', color:'var(--c-checklist)', content:`
-      <b>Antes de 10:00 AM</b> — Juan Guillermo sube picks al módulo Picks (límite para partidos europeos del mediodía)<br>
+      <b>Antes de 10:00 AM</b> — Juan Guillermo sube picks al módulo Picks<br>
       <b>10:00 AM</b> — Generás la imagen con el módulo Imagen<br>
       <b>10:30 AM</b> — Publicás en canal free de Telegram<br>
       <b>11:00 AM</b> — Publicás Story en Instagram<br>
-      <b>12:00-2:00 PM</b> — Horario pico: partidos europeos. Publicar recordatorios.<br>
-      <b>Tras cada partido</b> — Publicar resultado INMEDIATAMENTE (no esperar hasta las 8pm)<br>
-      <b>7:00-9:00 PM</b> — Horario pico: partidos nocturnos y NBA<br>
-      <b>9:00 PM</b> — Check-in 10 min con Juan Guillermo (3 veces por semana, no diario)<br>
+      <b>12:00-2:00 PM</b> — Horario pico europeo. Publicar recordatorios.<br>
+      <b>Tras cada partido</b> — Publicar resultado INMEDIATAMENTE<br>
+      <b>7:00-9:00 PM</b> — Horario pico nocturno y NBA<br>
+      <b>9:00 PM</b> — Check-in 10 min con Juan Guillermo (3 veces/semana)<br>
       <b>9:30 PM</b> — Registrar nuevos suscriptores` },
 
     { title:'4. Estrategia de Crecimiento', color:'var(--blue)', content:`
-      <b>Orgánico:</b> Crossposting Telegram + Instagram, collabs (KPI: mínimo 50 nuevos suscriptores free por collab), hashtags deportivos, grupos WhatsApp.<br><br>
-      <b>Pagado (mes 2+):</b> $200.000-$400.000 COP/semana en Instagram Ads. El ad lleva DIRECTAMENTE a <b>@NationParleyBot</b> (no a Linktree — menos fricción).<br><br>
-      <b>Value bets free:</b> EV > 0.05 · <b>Value bets VIP:</b> EV > 0.08 (más selectivo).<br><br>
-      <b>Winrate diferenciado:</b> Free: 55-60% · VIP: 62-68% (con análisis IA).<br><br>
-      <b>Meta:</b> 1.000 suscriptores en 30 días con publicación consistente.` },
+      <b>Orgánico:</b> Crossposting Telegram + Instagram, collabs (KPI: mínimo 50 nuevos suscriptores free), hashtags deportivos.<br><br>
+      <b>Credibilidad verificada:</b> Registrar en <b>Tipstrr.com</b> — verifica picks automáticamente, otorga badge de canal verificado. Gratis para empezar. Fundamental para diferenciarse en Colombia.<br><br>
+      <b>Pagado (mes 2+):</b> $200.000-$400.000 COP/semana en Instagram Ads → directo a <b>@NationParleyBot</b>.<br><br>
+      <b>Value bets:</b> Free: EV > 0.05 · VIP: EV > 0.08 · <b>Yield objetivo: 5-10%</b> (más importante que win rate).<br><br>
+      <b>Winrate:</b> Free: 55-60% · VIP: 62-68% con IA.<br><br>
+      <b>Engagement realista mes 1:</b> 10-20% views, 5% interacciones.` },
 
     { title:'5. Estrategia de IA', color:'var(--purple)', content:`
       <b>Picks personalizados:</b> Encuesta al unirse (deporte favorito, nivel de riesgo, bankroll).<br><br>
-      <b>Análisis predictivo:</b> StakeHunters (~$60.000 COP/mes premium) + Betaminic para value bets. Modelo Kelly Criterion para stakes.<br><br>
-      <b>Automatización:</b> Make — plan gratis alcanza ~500 usuarios activos. Después: $9 USD/mes. ChatGPT API: $10-20 USD/mes según uso.<br><br>
-      <b>OddsAPI:</b> Plan gratis (500 req/mes) = ~16 comparaciones/día. Para 3 deportes + 5 partidos/día necesitás plan de $29 USD/mes.<br><br>
-      <b>Resultados proyectados con IA:</b><br>
-      · +15-20% engagement en primeros 3 meses (base realista)<br>
-      · +30% retención vs canales sin IA (medido desde mes 3)<br>
-      · +25% conversión = pasar de 5% a 6.25% free→VIP` },
+      <b>Herramientas:</b> StakeHunters ($50.000-$100.000 COP/mes) + Betaminic. Alternativas LATAM: BetOven, ApuestaIdeas.<br><br>
+      <b>Claude API</b> (mejor para análisis estructurado de picks) o ChatGPT API: $10-20 USD/mes.<br><br>
+      <b>Make:</b> Plan gratis ~500 usuarios. Después $9 USD/mes.<br><br>
+      <b>OddsAPI:</b> Gratis 500 req/mes. Para 3 deportes: plan $29 USD/mes.<br><br>
+      <b>Resultados proyectados:</b><br>
+      · +15-20% engagement primeros 3 meses (base realista)<br>
+      · +30% retención vs canales sin IA (desde mes 3)<br>
+      · Conversión free→VIP: de 3-5% base a 5-6.25% con IA` },
 
     { title:'6. Cumplimiento Legal Colombia', color:'var(--red)', content:`
-      <b>RUT activo</b> — CIIU 6399 (Otros servicios de información) es el más adecuado para canales de Telegram con contenido educativo.<br><br>
-      <b>Disclaimer corto:</b> "Mayores de 18 años. Contenido educativo. No garantizamos ganancias. Apuesta con responsabilidad."<br><br>
-      <b>Ubicación del disclaimer:</b> Linktree + mensaje anclado en canal free + en el bot /start.<br><br>
-      <b>Verificación 18+ en Telegram:</b> Telegram NO tiene verificación de edad nativa. Usar @age_verification_bot o disclaimer en cada mensaje anclado.<br><br>
-      <b>Facturación electrónica:</b> Obligatoria al superar $4.550.000 COP/mes. Usar solución gratuita DIAN (menos de 1.000 facturas/mes).` },
+      <b>RUT activo</b> — CIIU 6399 (Otros servicios de información).<br><br>
+      <b>Disclaimer:</b> "Mayores de 18 años. Contenido educativo. No garantizamos ganancias. Apuesta con responsabilidad."<br><br>
+      <b>Ubicación:</b> Linktree + mensaje anclado en canal free + bot /start.<br><br>
+      <b>Verificación 18+ Telegram:</b> No tiene verificación nativa. Usar @age_verification_bot o disclaimer anclado.<br><br>
+      <b>Facturación:</b> Obligatoria al superar $6.100.000 COP/mes (SMLV 2026). Usar DIAN gratuita.<br><br>
+      <b>Afiliados:</b> Verificar licencias Coljuegos. Evitar bots auto-apuestas si regulados.<br><br>
+      <b>IVA depósitos:</b> Monitorear extensión del 19% en depósitos online — regulación Coljuegos 2026.` },
 
-    { title:'7. Errores a Evitar', color:'var(--c-metrics)', content:`
+    { title:'7. Riesgos del Negocio', color:'var(--c-metrics)', content:`
+      ⚠️ <b>Churn:</b> 20-30% de VIP cancelan mensualmente sin diferenciación. La IA y transparencia reducen esto.<br><br>
+      ⚠️ <b>Saturación:</b> ~50-100 canales tipsters activos en Colombia. Diferenciarte por Tipstrr + IA es clave.<br><br>
+      ⚠️ <b>Regulación:</b> IVA 19% depósitos online posible extensión. Monitorear Coljuegos.<br><br>
+      ⚠️ <b>Volatilidad:</b> Rachas malas inevitables. Tener fondo de reserva de 2 meses de gastos fijos.<br><br>
+      ⚠️ <b>Dependencia de Juan Guillermo:</b> Tener contenido de respaldo (análisis históricos, educación deportiva).<br><br>
+      ✓ <b>Mitigación:</b> Transparencia total de historial + verificación Tipstrr + diversificación de deportes en mes 3+.` },
+
+    { title:'8. Errores a Evitar', color:'var(--dim)', content:`
       ❌ Nunca publiques picks DESPUÉS del partido.<br>
-      ❌ No prometas win rates irreales. 62-68% VIP es profesional y alcanzable.<br>
+      ❌ No prometas win rates irreales. 62-68% VIP es profesional.<br>
       ❌ No intentes cubrir todos los deportes al inicio. Fútbol + NBA primero.<br>
       ❌ No uses Linktree como destino de ads — lleva directo al bot.<br>
-      ❌ Sin datos = sin dirección. Revisá métricas cada semana con Juan Guillermo.<br><br>
-      ✓ Dos horarios pico LATAM: 12-2pm y 7-9pm.<br>
-      ✓ Publicar resultado INMEDIATAMENTE después del partido.<br>
-      ✓ Check-in con Juan Guillermo: 10 min, 3 veces por semana.<br>
-      ✓ Cada collab debe traer mínimo 50 nuevos suscriptores free para ser exitosa.<br>
+      ❌ Sin datos = sin dirección. Revisá métricas cada semana.<br><br>
+      ✓ Horarios pico: 12-2pm y 7-9pm.<br>
+      ✓ Publicar resultado INMEDIATAMENTE tras el partido.<br>
+      ✓ Registrar canal en Tipstrr para credibilidad verificada.<br>
+      ✓ Cada collab debe traer mínimo 50 nuevos suscriptores free.<br>
       ✓ Transparencia total: publica aciertos Y fallos.` },
   ];
 
@@ -1761,6 +1776,7 @@ window.togglePlanSection = (i) => {
   body.style.display = open ? 'block' : 'none';
   arrow.textContent = open ? '▲' : '▼';
 };
+
 
 async function loadPicksForGenerator() {
   const container = document.getElementById('gen-picks-loader');
