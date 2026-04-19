@@ -530,9 +530,44 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     </div>
   </div>
 
-</div>
+  <!-- ══ DOCUMENTOS ══ -->
+  <div id="page-docs" class="page">
+    <div class="page-title">📁 Plan & Documentos</div>
 
-<!-- ══ BOTTOM NAV ══ -->
+    <!-- Links rápidos -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--gold),transparent)"></div>
+      <div class="card-title">Herramientas rápidas</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="https://nationparley-maker.github.io/nationparley/" target="_blank"
+           style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--s3);border-radius:8px;text-decoration:none;color:var(--text)">
+          <span>🤖 Bot Configurador</span><span style="color:var(--gold);font-size:12px">Abrir →</span>
+        </a>
+        <a href="https://nationparley-maker.github.io/nationparley/nation_parley_admin.html" target="_blank"
+           style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--s3);border-radius:8px;text-decoration:none;color:var(--text)">
+          <span>👥 Panel Admin Suscriptores</span><span style="color:var(--gold);font-size:12px">Abrir →</span>
+        </a>
+        <a href="https://t.me/NationParleyBot" target="_blank"
+           style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--s3);border-radius:8px;text-decoration:none;color:var(--text)">
+          <span>💬 @NationParleyBot</span><span style="color:var(--gold);font-size:12px">Abrir →</span>
+        </a>
+        <a href="https://mpago.li/2Y6oc3x" target="_blank"
+           style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--s3);border-radius:8px;text-decoration:none;color:var(--text)">
+          <span>💳 Link de pago Mercado Pago</span><span style="color:var(--gold);font-size:12px">Abrir →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Plan Gerencial -->
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,var(--purple),transparent)"></div>
+      <div class="card-title">Plan Gerencial 2026</div>
+
+      <div id="plan-sections"></div>
+    </div>
+  </div>
+
+</div>
 <nav class="bottom-nav" id="bottom-nav" style="display:none">
   <button class="nav-btn active" onclick="goPage('dashboard')" id="nav-dashboard">
     <span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>
@@ -541,7 +576,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
     <span class="nav-icon">🎨</span><span class="nav-label">Imagen</span>
   </button>
   <button class="nav-btn" onclick="goPage('checklist')" id="nav-checklist">
-    <span class="nav-icon" style="font-size:16px;font-weight:900;color:var(--dim);letter-spacing:-1px">OK</span><span class="nav-label">Tareas</span>
+    <span class="nav-icon" style="font-size:22px;line-height:1">📌</span><span class="nav-label">Tareas</span>
   </button>
   <button class="nav-btn" onclick="goPage('picks')" id="nav-picks">
     <span class="nav-icon">🎯</span><span class="nav-label">Picks</span>
@@ -553,6 +588,7 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
 
 <!-- ══ PROFILE MENU ══ -->
 <div class="profile-menu" id="profile-menu">
+  <div class="pm-item" onclick="goPage('docs');toggleProfileMenu()">📁 Plan & Documentos</div>
   <div class="pm-item" onclick="goPage('metrics');toggleProfileMenu()">📊 Métricas</div>
   <div class="pm-item" onclick="goPage('content');toggleProfileMenu()">📝 Contenido</div>
   <div class="pm-item" onclick="goPage('calendar');toggleProfileMenu()">📅 Calendario</div>
@@ -903,6 +939,7 @@ window.goPage = (id) => {
   if (id==='checklist') showChecklist(currentChecklist);
   if (id==='picks') renderPicks();
   if (id==='generator') { initGenerator(); loadPicksForGenerator(); }
+  if (id==='docs') renderDocs();
 };
 
 // ── MODALS ──
@@ -1570,8 +1607,74 @@ function getDaysSinceStart() {
   return Math.floor((new Date() - start) / 86400000);
 }
 
-// ── GENERATOR ──
-let genPickCount = 0;
+// ── DOCS ──
+function renderDocs() {
+  const sections = [
+    { title:'1. Modelo de Negocio', color:'var(--green)', content:`
+      <b>Canal Gratuito:</b> Picks con +70% acierto histórico. Objetivo: generar confianza y audiencia.<br><br>
+      <b>Canal VIP ($20.000 COP/mes):</b> Picks exclusivos, análisis con IA, gestión de bankroll personalizada.<br><br>
+      <b>VIP IA Premium ($35.000 COP/mes):</b> Todo lo anterior + picks personalizados por deporte y perfil de riesgo.<br><br>
+      <b>Afiliados:</b> Betsson, Codere, Wplay, 1xBet — comisión por cada usuario registrado.` },
+    { title:'2. Rutina Diaria (2-3 horas)', color:'var(--c-checklist)', content:`
+      <b>8:00 AM</b> — Juan Guillermo sube picks al módulo Picks<br>
+      <b>9:00 AM</b> — Generás la imagen con el módulo Imagen<br>
+      <b>9:30 AM</b> — Publicás en canal free de Telegram<br>
+      <b>10:00 AM</b> — Publicás Story en Instagram<br>
+      <b>6:00 PM</b> — Post educativo o análisis en Instagram<br>
+      <b>8:00 PM</b> — Resultado del pick + pick nocturno<br>
+      <b>9:30 PM</b> — Check-in 15 min con Juan Guillermo<br>
+      <b>10:00 PM</b> — Registrar nuevos suscriptores` },
+    { title:'3. Proyección de Ingresos', color:'var(--gold)', content:`
+      <b>Mes 1:</b> 10-15 VIP · ~$150-200 USD<br>
+      <b>Mes 3:</b> 80-100 VIP · ~$1.000-1.500 USD<br>
+      <b>Mes 6:</b> 400-500 VIP · ~$5.000-7.000 USD<br>
+      <b>Mes 12:</b> 1.000+ VIP · ~$10.000-15.000 USD<br><br>
+      <b>Fondo impuestos Colombia:</b> Reservá siempre el 19% de ingresos.` },
+    { title:'4. Estrategia de Crecimiento', color:'var(--blue)', content:`
+      <b>Orgánico:</b> Crossposting Telegram + Instagram, collabs, hashtags deportivos, grupos WhatsApp.<br><br>
+      <b>Pagado (mes 2+):</b> $50-100 USD/semana en Instagram Ads — Colombia, 20-40 años, intereses deportes + apuestas.<br><br>
+      <b>Meta:</b> 1.000 suscriptores en 30 días con publicación consistente.` },
+    { title:'5. Estrategia de IA', color:'var(--purple)', content:`
+      <b>Picks personalizados:</b> Encuesta al unirse (deporte favorito, nivel de riesgo, bankroll).<br><br>
+      <b>Análisis predictivo:</b> StakeHunters + Betaminic para value bets. Modelo Kelly Criterion para stakes.<br><br>
+      <b>Automatización:</b> Make (Integromat) + ChatGPT para generar análisis automáticos desde los picks de Juan Guillermo.<br><br>
+      <b>+30% retención</b> proyectada con personalización por IA.` },
+    { title:'6. Cumplimiento Legal Colombia', color:'var(--red)', content:`
+      <b>RUT activo</b> — actividad económica 7290 o 6399.<br><br>
+      <b>Disclaimer obligatorio:</b> "Las apuestas deportivas son solo para mayores de 18 años. Este canal es educativo y de entretenimiento. No garantizamos ganancias. Apuesta con responsabilidad."<br><br>
+      <b>Facturación electrónica</b> si superás 3.5 SMLV/mes (Colfactura o Alegra).` },
+    { title:'7. Errores a Evitar', color:'var(--c-metrics)', content:`
+      ❌ Nunca publiques picks DESPUÉS del partido.<br>
+      ❌ No prometas win rates irreales. 60-65% sostenido es profesional.<br>
+      ❌ No intentes cubrir todos los deportes al inicio. Fútbol + NBA primero.<br>
+      ❌ Sin datos = sin dirección. Revisá métricas cada semana con Juan Guillermo.<br>
+      ✓ Horario pico LATAM: 6-9pm para publicar picks.<br>
+      ✓ Transparencia total: publica aciertos Y fallos.` },
+  ];
+
+  document.getElementById('plan-sections').innerHTML = sections.map((s,i) => `
+    <div style="margin-bottom:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div onclick="togglePlanSection(${i})"
+           style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:var(--s3)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:4px;height:18px;background:${s.color};border-radius:2px"></div>
+          <span style="font-size:14px;font-weight:700">${s.title}</span>
+        </div>
+        <span id="plan-arrow-${i}" style="color:var(--dim);font-size:14px">▼</span>
+      </div>
+      <div id="plan-body-${i}" style="display:none;padding:16px;font-size:13px;line-height:1.8;color:rgba(232,224,208,0.8)">
+        ${s.content}
+      </div>
+    </div>`).join('');
+}
+
+window.togglePlanSection = (i) => {
+  const body = document.getElementById(`plan-body-${i}`);
+  const arrow = document.getElementById(`plan-arrow-${i}`);
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▲' : '▼';
+};
 
 async function loadPicksForGenerator() {
   const container = document.getElementById('gen-picks-loader');
