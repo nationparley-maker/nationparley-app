@@ -428,14 +428,65 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
   <!-- ══ GENERADOR ══ -->
   <div id="page-generator" class="page">
     <div class="page-title">🎨 Generador de Imágenes</div>
+
+    <!-- Datalists for autocomplete -->
+    <datalist id="ligas-list">
+      <option value="Premier League"/><option value="La Liga"/><option value="Bundesliga"/>
+      <option value="Serie A"/><option value="Ligue 1"/><option value="Champions League"/>
+      <option value="Europa League"/><option value="Conference League"/><option value="Copa Libertadores"/>
+      <option value="Copa Sudamericana"/><option value="Liga BetPlay"/><option value="MLS"/>
+      <option value="Eredivisie"/><option value="Primeira Liga"/><option value="Super Lig"/>
+      <option value="Brasileirao"/><option value="Liga MX"/><option value="World Cup"/>
+      <option value="Eurocopa"/><option value="Copa América"/><option value="NBA"/>
+      <option value="NFL"/><option value="MLB"/><option value="UFC"/><option value="Wimbledon"/>
+      <option value="Roland Garros"/><option value="US Open"/><option value="Australian Open"/>
+    </datalist>
+    <datalist id="equipos-list">
+      <!-- Premier League -->
+      <option value="Arsenal"/><option value="Aston Villa"/><option value="Chelsea"/>
+      <option value="Liverpool"/><option value="Manchester City"/><option value="Manchester United"/>
+      <option value="Newcastle"/><option value="Tottenham"/><option value="West Ham"/>
+      <!-- La Liga -->
+      <option value="Real Madrid"/><option value="Barcelona"/><option value="Atletico Madrid"/>
+      <option value="Sevilla"/><option value="Valencia"/><option value="Villarreal"/>
+      <option value="Athletic Club"/><option value="Real Sociedad"/><option value="Betis"/>
+      <!-- Bundesliga -->
+      <option value="Bayern Munich"/><option value="Borussia Dortmund"/><option value="RB Leipzig"/>
+      <option value="Bayer Leverkusen"/><option value="M'Gladbach"/><option value="Mainz 05"/>
+      <option value="Eintracht Frankfurt"/><option value="Wolfsburg"/><option value="Stuttgart"/>
+      <!-- Serie A -->
+      <option value="Inter Milan"/><option value="AC Milan"/><option value="Juventus"/>
+      <option value="Napoli"/><option value="Roma"/><option value="Lazio"/><option value="Fiorentina"/>
+      <!-- Ligue 1 -->
+      <option value="PSG"/><option value="Monaco"/><option value="Lyon"/><option value="Marseille"/>
+      <!-- Colombia -->
+      <option value="Millonarios"/><option value="Nacional"/><option value="América de Cali"/>
+      <option value="Junior"/><option value="Santa Fe"/><option value="Deportes Tolima"/>
+      <option value="Once Caldas"/><option value="Deportivo Cali"/><option value="Medellín"/>
+      <!-- NBA -->
+      <option value="Lakers"/><option value="Warriors"/><option value="Celtics"/>
+      <option value="Heat"/><option value="Bulls"/><option value="Knicks"/>
+      <option value="Nets"/><option value="Bucks"/><option value="Suns"/><option value="Nuggets"/>
+      <!-- Champions extra -->
+      <option value="Porto"/><option value="Benfica"/><option value="Ajax"/>
+      <option value="Celtic"/><option value="Rangers"/><option value="Galatasaray"/>
+      <option value="Fenerbahce"/><option value="Shakhtar"/><option value="Dinamo Zagreb"/>
+    </datalist>
+
     <div class="form-section">
       <div class="form-title">Datos del partido</div>
       <div class="row2">
-        <div class="field"><label>Liga / Torneo</label><input id="g-liga" type="text" placeholder="Ej: Bundesliga"/></div>
-        <div class="field"><label>Fecha</label><input id="g-fecha" type="text" placeholder="Ej: 19 Abril"/></div>
+        <div class="field"><label>Liga / Torneo</label>
+          <input id="g-liga" type="text" placeholder="Ej: Bundesliga" list="ligas-list" autocomplete="off"/>
+        </div>
+        <div class="field"><label>Fecha</label>
+          <input id="g-fecha" type="text" placeholder="Ej: 19 Abril"/>
+        </div>
       </div>
       <div class="row2">
-        <div class="field"><label>Hora</label><input id="g-hora" type="text" placeholder="Ej: 13:30"/></div>
+        <div class="field"><label>Hora</label>
+          <input id="g-hora" type="text" placeholder="Ej: 13:30"/>
+        </div>
         <div class="field"><label>Deporte</label>
           <select id="g-deporte">
             <option>⚽ Fútbol</option><option>🏀 NBA</option><option>🏈 NFL</option>
@@ -444,8 +495,12 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
         </div>
       </div>
       <div class="row2">
-        <div class="field"><label>Equipo Local</label><input id="g-local" type="text" placeholder="Ej: M'Gladbach"/></div>
-        <div class="field"><label>Equipo Visitante</label><input id="g-visitante" type="text" placeholder="Ej: Mainz 05"/></div>
+        <div class="field"><label>Equipo Local</label>
+          <input id="g-local" type="text" placeholder="Ej: M'Gladbach" list="equipos-list" autocomplete="off"/>
+        </div>
+        <div class="field"><label>Equipo Visitante</label>
+          <input id="g-visitante" type="text" placeholder="Ej: Mainz 05" list="equipos-list" autocomplete="off"/>
+        </div>
       </div>
     </div>
     <div class="form-section">
