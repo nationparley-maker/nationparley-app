@@ -1,0 +1,9 @@
+{
+  "name": "Nation Parley",
+  "short_name": "NP",
+  "start_url": "/nationparley-app/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#D4920C",
+  "icons": []
+}
