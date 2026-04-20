@@ -2491,19 +2491,81 @@ window.generateStoryImage = () => {
   const sRR = (x,y,w,h,r)=>{ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();};
 
   if(type==='bienvenida'){
-    const tagline=document.getElementById('s-tagline')?.value||''; const main=document.getElementById('s-main')?.value||''; const cta=document.getElementById('s-cta')?.value||'@NationParleyBot';
-    // Tagline below the divider line (starts at 188)
-    ctx.font='400 26px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(245,192,48,.6)'; ctx.letterSpacing='3px'; ctx.fillText(tagline.toUpperCase(),W/2,222);
+    const tagline=document.getElementById('s-tagline')?.value||''; 
+    const main=document.getElementById('s-main')?.value||''; 
+    const cta=document.getElementById('s-cta')?.value||'@NationParleyBot';
+
+    // Tagline — below divider
+    ctx.font='400 26px "Barlow Condensed",sans-serif'; 
+    ctx.fillStyle='rgba(245,192,48,.6)'; 
+    ctx.letterSpacing='3px'; 
+    ctx.fillText(tagline.toUpperCase(),W/2,222);
+
     // Main title
-    ctx.font='900 96px "Barlow Condensed",sans-serif'; ctx.fillStyle='#FFF'; ctx.letterSpacing='0px'; ctx.fillText('BIENVENIDOS',W/2,360);
-    ctx.fillStyle=mkG(W/2-200,0,W/2+200,0); ctx.fillText('A NATION',W/2,470); ctx.fillText('PARLEY',W/2,580);
-    ctx.fillStyle=mkG(0,0,W,0); ctx.fillRect(80,640,W-160,4);
-    const ml=main.split('\n'); ctx.font='400 34px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(232,224,208,.85)'; ctx.letterSpacing='0px';
-    ml.forEach((l,i)=>ctx.fillText(l,W/2,740+i*50));
-    ['✦ Picks ANTES del partido','✦ Verificados en Tipstrr','✦ Transparencia total'].forEach((p,i)=>{ctx.font='700 34px "Barlow Condensed",sans-serif'; ctx.fillStyle='#F5C030'; ctx.fillText(p,W/2,1000+i*70);});
-    sRR(80,1240,W-160,100,16); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
-    ctx.font='800 40px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='4px'; ctx.fillText(cta.toUpperCase(),W/2,1302);
-    ctx.font='400 26px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.3)'; ctx.letterSpacing='2px'; ctx.fillText('tipstrr.com/tipster/nation-parley',W/2,1460);
+    ctx.font='900 96px "Barlow Condensed",sans-serif'; 
+    ctx.fillStyle='#FFF'; 
+    ctx.letterSpacing='0px'; 
+    ctx.fillText('BIENVENIDOS',W/2,360);
+    ctx.fillStyle=mkG(W/2-200,0,W/2+200,0); 
+    ctx.fillText('A NATION',W/2,470); 
+    ctx.fillText('PARLEY',W/2,580);
+
+    // Gold divider
+    ctx.fillStyle=mkG(0,0,W,0); 
+    ctx.fillRect(80,620,W-160,4);
+
+    // Main text with word wrap
+    const wrapText = (text, maxW, fontSize) => {
+      ctx.font = `400 ${fontSize}px "Barlow Condensed",sans-serif`;
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      for(const w of words) {
+        const test = line + (line?' ':'') + w;
+        if(ctx.measureText(test).width > maxW && line) { lines.push(line); line=w; }
+        else line=test;
+      }
+      if(line) lines.push(line);
+      return lines;
+    };
+
+    const maxTextW = W - 120;
+    const allLines = [];
+    main.split('\n').forEach(para => {
+      if(para.trim()==='') { allLines.push(''); return; }
+      wrapText(para, maxTextW, 34).forEach(l => allLines.push(l));
+    });
+
+    ctx.font='400 34px "Barlow Condensed",sans-serif'; 
+    ctx.fillStyle='rgba(232,224,208,.85)'; 
+    ctx.letterSpacing='0px';
+    const textStartY = 680;
+    const lineH = 48;
+    allLines.forEach((l,i) => ctx.fillText(l, W/2, textStartY + i*lineH));
+
+    // Bullets — positioned dynamically after text
+    const bulletsY = textStartY + allLines.length * lineH + 50;
+    ['✦ Picks ANTES del partido','✦ Verificados en Tipstrr','✦ Transparencia total'].forEach((p,i)=>{
+      ctx.font='700 34px "Barlow Condensed",sans-serif'; 
+      ctx.fillStyle='#F5C030'; 
+      ctx.fillText(p, W/2, bulletsY + i*70);
+    });
+
+    // CTA button — positioned after bullets
+    const ctaY = bulletsY + 3*70 + 60;
+    sRR(80, ctaY, W-160, 100, 16); 
+    ctx.fillStyle=mkG(80,0,W-80,0); 
+    ctx.fill();
+    ctx.font='800 40px "Barlow Condensed",sans-serif'; 
+    ctx.fillStyle='#000'; 
+    ctx.letterSpacing='4px'; 
+    ctx.fillText(cta.toUpperCase(), W/2, ctaY+62);
+
+    // Tipstrr link
+    ctx.font='400 26px "Barlow Condensed",sans-serif'; 
+    ctx.fillStyle='rgba(255,255,255,.3)'; 
+    ctx.letterSpacing='2px'; 
+    ctx.fillText('tipstrr.com/tipster/nation-parley', W/2, ctaY+140);
 
   }else if(type==='pick'){
     const partido=document.getElementById('s-partido')?.value||''; const liga=document.getElementById('s-liga')?.value||''; const pick=document.getElementById('s-pick')?.value||'PICK'; const cuota=document.getElementById('s-cuota')?.value||'—'; const hora=document.getElementById('s-hora')?.value||''; const conf=parseInt(document.getElementById('s-conf')?.value||'75');
