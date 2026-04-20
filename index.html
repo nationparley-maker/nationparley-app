@@ -765,6 +765,61 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
       </select>
     </div>
     <input type="hidden" id="p-edit-id"/>
+
+    <!-- EV Calculator (opcional, colapsable) -->
+    <div style="margin-top:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div onclick="toggleEVCalc()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:var(--s3)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:4px;height:16px;background:var(--gold);border-radius:2px"></div>
+          <span style="font-size:13px;font-weight:700;letter-spacing:1px;color:var(--gold-light)">📐 CALCULADORA DE VALOR ESPERADO</span>
+        </div>
+        <span id="ev-arrow" style="color:var(--dim);font-size:13px">▼</span>
+      </div>
+      <div id="ev-calc-body" style="display:none;padding:14px">
+        <div style="font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.5">
+          Ingresá la cuota de la casa y tu probabilidad estimada. El EV te dice si el pick tiene valor matemático.
+        </div>
+        <div class="row2">
+          <div class="field"><label>Cuota de la casa</label>
+            <input id="ev-odds" type="number" step="0.01" placeholder="1.85" oninput="calcEV()"/>
+          </div>
+          <div class="field"><label>Tu probabilidad %</label>
+            <input id="ev-prob" type="number" placeholder="55" min="1" max="99" oninput="calcEV()"/>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Stake (unidades)</label>
+            <input id="ev-stake" type="number" step="0.5" placeholder="1.0" oninput="calcEV()"/>
+          </div>
+          <div class="field"><label>Cuota alternativa (opcional)</label>
+            <input id="ev-odds2" type="number" step="0.01" placeholder="Para calcular vig" oninput="calcEV()"/>
+          </div>
+        </div>
+
+        <!-- Resultado EV -->
+        <div id="ev-result" style="margin-top:10px;padding:14px;background:var(--s1);border-radius:10px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-size:12px;letter-spacing:2px;color:var(--dim)">VALOR ESPERADO</span>
+            <span id="ev-value" style="font-size:28px;font-weight:800"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:6px">
+            <span>Probabilidad implícita casa</span>
+            <span id="ev-implied" style="color:var(--text)"></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:6px">
+            <span>EV por unidad</span>
+            <span id="ev-per-unit" style="color:var(--text)"></span>
+          </div>
+          <div id="ev-vig-row" style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:10px">
+            <span>Vig eliminada (prob real)</span>
+            <span id="ev-vig-free" style="color:var(--text)"></span>
+          </div>
+          <div id="ev-verdict" style="padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;letter-spacing:1px"></div>
+          <div style="font-size:11px;color:var(--dim);margin-top:8px;text-align:center" id="ev-threshold"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-outline btn-sm" onclick="closeModal('modal-pick')">Cancelar</button>
       <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="savePick()">Guardar</button>
@@ -1514,6 +1569,70 @@ window.deletePick = async (id) => {
   await deleteDoc(doc(db,'picks',id));
   renderPicks();
   showToast('Pick eliminado');
+};
+
+// ── EV CALCULATOR ──
+window.toggleEVCalc = () => {
+  const body = document.getElementById('ev-calc-body');
+  const arrow = document.getElementById('ev-arrow');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▲' : '▼';
+};
+
+window.calcEV = () => {
+  const odds  = parseFloat(document.getElementById('ev-odds')?.value);
+  const prob  = parseFloat(document.getElementById('ev-prob')?.value);
+  const stake = parseFloat(document.getElementById('ev-stake')?.value) || 1;
+  const odds2 = parseFloat(document.getElementById('ev-odds2')?.value);
+
+  if (!odds || !prob || odds < 1.01 || prob < 1 || prob > 99) {
+    document.getElementById('ev-result').style.display = 'none';
+    return;
+  }
+
+  const p = prob / 100;
+  const impliedProb = (1 / odds) * 100;
+  const ev = (p * (odds - 1) * stake) - ((1 - p) * stake);
+  const evPct = (ev / stake) * 100;
+
+  let vigFreeText = '—';
+  if (odds2 && odds2 > 1) {
+    const margin = (1/odds) + (1/odds2);
+    const vigFreeProb = (1/odds) / margin * 100;
+    vigFreeText = vigFreeProb.toFixed(1) + '%';
+  }
+
+  const tier = document.getElementById('p-tier')?.value || 'free';
+  const threshold = tier === 'vip' ? 5 : 2;
+  let verdictBg, verdictColor, verdictText;
+
+  if (evPct >= threshold) {
+    verdictBg = 'rgba(61,186,110,0.15)';
+    verdictColor = '#3dba6e';
+    verdictText = '✅ PICK CON VALOR — PUBLICAR';
+  } else if (evPct >= 0) {
+    verdictBg = 'rgba(245,192,48,0.12)';
+    verdictColor = '#F5C030';
+    verdictText = '⚠️ VALOR MARGINAL — EVALUAR';
+  } else {
+    verdictBg = 'rgba(224,80,80,0.12)';
+    verdictColor = '#e05050';
+    verdictText = '❌ SIN VALOR — NO PUBLICAR';
+  }
+
+  document.getElementById('ev-result').style.display = 'block';
+  document.getElementById('ev-value').textContent = (evPct >= 0 ? '+' : '') + evPct.toFixed(1) + '%';
+  document.getElementById('ev-value').style.color = verdictColor;
+  document.getElementById('ev-implied').textContent = impliedProb.toFixed(1) + '%';
+  document.getElementById('ev-per-unit').textContent = (ev >= 0 ? '+' : '') + ev.toFixed(3) + 'u';
+  document.getElementById('ev-per-unit').style.color = verdictColor;
+  document.getElementById('ev-vig-free').textContent = vigFreeText;
+  document.getElementById('ev-verdict').textContent = verdictText;
+  document.getElementById('ev-verdict').style.background = verdictBg;
+  document.getElementById('ev-verdict').style.color = verdictColor;
+  document.getElementById('ev-threshold').textContent =
+    `Umbral ${tier === 'vip' ? 'VIP' : 'Free'}: EV > ${threshold}% para publicar`;
 };
 
 window.savePick = async () => {
