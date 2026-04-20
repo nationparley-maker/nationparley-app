@@ -2377,10 +2377,30 @@ const STORY_FIELDS = {
   educativo: `<div class="form-title">Story Educativa</div>
     <div class="field"><label>Tema</label>
       <select id="s-tema">
-        <option value="valuebet">¿Qué es el Value Betting?</option>
-        <option value="kelly">Criterio Kelly — gestión de bankroll</option>
-        <option value="tipsters">Por qué el 90% de tipsters mienten</option>
-        <option value="winrate">Win Rate vs Yield</option>
+        <optgroup label="📐 Conceptos de apuestas">
+          <option value="valuebet">¿Qué es el Value Betting?</option>
+          <option value="kelly">Criterio Kelly — gestión de bankroll</option>
+          <option value="tipsters">Por qué el 90% de tipsters mienten</option>
+          <option value="winrate">Win Rate vs Yield</option>
+          <option value="ev">EV — Valor Esperado explicado</option>
+        </optgroup>
+        <optgroup label="⚽ Métricas de Fútbol">
+          <option value="xg">Expected Goals (xG) — qué es</option>
+          <option value="xg_uso">xG — cómo lo usamos en Nation Parley</option>
+          <option value="ema">Forma reciente con EMA</option>
+          <option value="localia">El factor localía en 2026</option>
+          <option value="pressing">Pressing Efficiency</option>
+        </optgroup>
+        <optgroup label="🏀 Métricas de NBA">
+          <option value="epm">EPM — impacto real de un jugador</option>
+          <option value="b2b">Back-to-backs — el edge más fácil</option>
+          <option value="pace">Pace y por qué PPG engaña</option>
+        </optgroup>
+        <optgroup label="💡 Tips avanzados">
+          <option value="vig">Qué es el Vig y cómo te roba</option>
+          <option value="sistemas">Sistemas vs picks sueltos</option>
+          <option value="sample">Por qué importa el tamaño de muestra</option>
+        </optgroup>
       </select></div>
     <div class="field"><label>Texto personalizado (opcional)</label>
       <textarea id="s-edutexto" style="width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:11px;outline:none;resize:none;height:80px;line-height:1.5" placeholder="Dejalo vacío para usar el texto predefinido"></textarea></div>`,
@@ -2401,10 +2421,29 @@ const STORY_FIELDS = {
 };
 
 const EDU_TEXTS = {
-  valuebet:{ title:'VALUE BETTING', sub:'La única estrategia que funciona a largo plazo', body:'Una apuesta tiene valor cuando\ntu probabilidad > probabilidad de la casa.\n\nNo se trata de acertar siempre.\nSe trata de apostar con ventaja.' },
+  // ── CONCEPTOS APUESTAS ──
+  valuebet:{ title:'VALUE BETTING', sub:'La única estrategia que funciona a largo plazo', body:'Una apuesta tiene valor cuando\ntu probabilidad > probabilidad de la casa.\n\nNo se trata de acertar siempre.\nSe trata de apostar con ventaja matemática.' },
   kelly:   { title:'CRITERIO KELLY', sub:'Gestión de bankroll profesional', body:'Stake óptimo =\n(prob × cuota − 1) / (cuota − 1)\n\nEjemplo: 60% prob · cuota 1.90\nStake recomendado: 2% del bankroll' },
   tipsters:{ title:'90% DE TIPSTERS\nMIENTEN', sub:'Aprende a identificarlos', body:'❌ Publican picks después del partido\n❌ Solo muestran los ganadores\n❌ Prometen 80-90% acierto\n\nBusca siempre verificación Tipstrr.' },
-  winrate: { title:'WIN RATE\nVS YIELD', sub:'¿Cuál importa más?', body:'Win Rate = % de picks ganados\nYield = % de ganancia sobre lo apostado\n\nEl Yield es más importante.\nUn 5% de yield sostenido = profesional.' },
+  winrate: { title:'WIN RATE\nVS YIELD', sub:'¿Cuál importa más?', body:'Win Rate = % de picks ganados\nYield = % de ganancia sobre apostado\n\nEl Yield es más importante.\nUn 5-10% de yield sostenido = profesional.' },
+  ev:      { title:'VALOR ESPERADO\n(EV)', sub:'La matemática detrás de cada pick', body:'EV = (prob_ganar × ganancia)\n     − (prob_perder × stake)\n\nEV positivo = pick con valor matemático\nEV negativo = no publicar\n\nNosotros solo publicamos EV > 2% free\ny EV > 5% en canal VIP.' },
+
+  // ── FÚTBOL ──
+  xg:      { title:'xG — EXPECTED\nGOALS', sub:'La métrica más importante del fútbol moderno', body:'xG mide la CALIDAD de las ocasiones,\nno solo los goles marcados.\n\nxG > 1.5/partido = ataque élite\nDiferencia xG real vs goles > 0.3\n= equipo sobre o bajo-rindiendo\n\nFuente: FBref · Understat (gratis)' },
+  xg_uso:  { title:'CÓMO USAMOS\nEL xG', sub:'Nuestro proceso de análisis en Nation Parley', body:'1. Promediamos xG de los últimos\n   10 partidos de cada equipo.\n\n2. Cruzamos con la cuota de la casa.\n\n3. Si nuestra prob. estimada > prob.\n   implícita → hay valor.\n\nEso es lo que hace la diferencia.' },
+  ema:     { title:'FORMA RECIENTE\nCON EMA', sub:'No todos los partidos valen igual', body:'EMA = (Resultado × 0.3)\n     + (EMA anterior × 0.7)\n\nEMA > 0.6 = equipo en forma caliente\nEMA < 0.4 = equipo en mal momento\n\nPesamos más los últimos 5-10\npartidos que el promedio general.' },
+  localia: { title:'FACTOR\nLOCALÍA 2026', sub:'¿Sigue importando jugar en casa?', body:'Sí, pero menos que antes.\n\nPremier League 2025-26:\n40-45% win rate de locales.\n\nImpacto: +5-10% de probabilidad\nde victoria jugando en casa.\n\nLo ajustamos en nuestros modelos.' },
+  pressing:{ title:'PRESSING\nEFFICIENCY', sub:'La métrica defensiva que las casas ignoran', body:'Mide cuánto presiona un equipo\ny qué tan exitosamente recupera.\n\nEquipos con pressing alto vs.\nequipos con bajo ball progression\n→ tender Over 2.5 goles\n\nTip insider: cruza xG + pressing\npara detectar transiciones letales.' },
+
+  // ── NBA ──
+  epm:     { title:'EPM — IMPACTO\nREAL NBA', sub:'Mejor métrica que los puntos por partido', body:'EPM (Estimated Plus/Minus)\npredice el impacto real de un jugador\najustando por sus compañeros.\n\nEPM > +5 = jugador élite\n\nSumamos EPM de los 3 mejores\njugadores para predecir resultados.' },
+  b2b:     { title:'BACK-TO-BACKS\nNBA', sub:'El edge más fácil de identificar', body:'Back-to-back + viaje > 3.000 km\n= ventaja clara para apostar en contra.\n\nImpacto real:\n−3% win probability en B2B\n−5-10% en 4to cuarto (fatiga)\n\nSistema probado:\nB2B home Under tiene 55% hit rate.' },
+  pace:    { title:'PACE Y POR QUÉ\nPPG ENGAÑA', sub:'Ajusta siempre por ritmo de juego', body:'Un equipo puede promediar 120 ppg\npero en un ritmo muy alto.\n\nPER (Player Efficiency Rating)\najusta por minutos y posesiones.\n\nPER > 25 = jugador élite real\n\nSiempre ajustá los stats por pace\nantes de analizar un partido NBA.' },
+
+  // ── TIPS AVANZADOS ──
+  vig:     { title:'QUÉ ES EL VIG\nY CÓMO TE ROBA', sub:'El margen oculto de las casas', body:'El Vig es el margen que cobra la casa.\n\nEjemplo: cuota real debería ser 2.00\npero la casa paga 1.90.\n\nEsa diferencia es su ganancia.\n\nPara encontrar la prob. real:\nVig-free = (1/cuota1) / ((1/cuota1)\n           + (1/cuota2))\n\nSiempre calculá contra el vig.' },
+  sistemas:{ title:'SISTEMAS VS\nPICKS SUELTOS', sub:'Por qué los pros piensan en sistemas', body:'Un pick suelto es ruido.\nUn sistema con 100+ bets es señal.\n\n5 sistemas probados en fútbol:\n✦ xG underdogs +0.5 goles (52% ROI)\n✦ EMA > 0.6 + local (55% win)\n✦ Pressing alto vs low ball prog\n\nNosotros validamos cada pick\ncontra sistemas probados.' },
+  sample:  { title:'TAMAÑO DE\nMUESTRA', sub:'Por qué los primeros 20 picks no significan nada', body:'Menos de 100 picks = ruido estadístico.\nNecesitás mínimo 300 picks para\ntener señal real.\n\nUna racha de 7-10 picks ganados\npuede ser solo suerte (p > 0.05).\n\nPor eso publicamos nuestro historial\ncompleto verificado en Tipstrr.\nTransparencia total.' },
 };
 
 window.selectStoryType = (type) => {
