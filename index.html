@@ -429,6 +429,14 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
   <div id="page-generator" class="page">
     <div class="page-title">🎨 Generador de Imágenes</div>
 
+    <!-- Tabs: Picks vs Stories -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;background:var(--s1);border-radius:8px;padding:4px">
+      <button class="auth-tab active" id="gen-tab-picks" onclick="switchGenTab('picks')">📊 Posts de Picks</button>
+      <button class="auth-tab" id="gen-tab-stories" onclick="switchGenTab('stories')">📱 Stories</button>
+    </div>
+
+    <!-- ── TAB PICKS ── -->
+    <div id="gen-section-picks">
     <!-- Cargar desde picks -->
     <div class="card" style="margin-bottom:14px">
       <div class="card-accent" style="background:linear-gradient(90deg,var(--gold),transparent)"></div>
@@ -528,6 +536,49 @@ html, body { height: 100%; overflow: hidden; background: var(--black); color: va
       </div>
       <canvas id="gen-canvas" style="width:100%;border-radius:8px;display:block;margin-top:8px"></canvas>
     </div>
+    </div><!-- end gen-section-picks -->
+
+    <!-- ── TAB STORIES ── -->
+    <div id="gen-section-stories" style="display:none">
+
+      <div class="form-section">
+        <div class="form-title">Tipo de Story</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="story-type-selector">
+          <button class="story-type-btn active" onclick="selectStoryType('bienvenida')" id="stype-bienvenida"
+            style="padding:12px 16px;border-radius:8px;border:1px solid var(--gold);background:rgba(212,146,12,.1);color:var(--gold-light);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-align:left">
+            🏆 Presentación del canal</button>
+          <button class="story-type-btn" onclick="selectStoryType('pick')" id="stype-pick"
+            style="padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-align:left">
+            🎯 Pick del día</button>
+          <button class="story-type-btn" onclick="selectStoryType('resultado')" id="stype-resultado"
+            style="padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-align:left">
+            📊 Resultado verificado</button>
+          <button class="story-type-btn" onclick="selectStoryType('educativo')" id="stype-educativo"
+            style="padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-align:left">
+            📚 Tip educativo</button>
+          <button class="story-type-btn" onclick="selectStoryType('vip')" id="stype-vip"
+            style="padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-align:left">
+            💎 Recordatorio VIP</button>
+          <button class="story-type-btn" onclick="selectStoryType('resumen')" id="stype-resumen"
+            style="padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-align:left">
+            📈 Resumen semanal</button>
+        </div>
+      </div>
+
+      <!-- Story fields — change per type -->
+      <div class="form-section" id="story-fields"></div>
+
+      <button class="btn-primary" onclick="generateStoryImage()" style="margin-bottom:16px">📱 Generar Story</button>
+
+      <div class="form-section" id="story-preview-section" style="display:none">
+        <div class="section-head">
+          <div class="form-title">Preview · 1080×1920</div>
+          <button class="btn-outline btn-sm" onclick="downloadStoryImage()">↓ Descargar PNG</button>
+        </div>
+        <canvas id="story-canvas" style="width:100%;border-radius:8px;display:block;margin-top:8px"></canvas>
+      </div>
+    </div><!-- end gen-section-stories -->
+
   </div>
 
   <!-- ══ DOCUMENTOS ══ -->
@@ -1884,8 +1935,26 @@ function initGenerator() {
   genPickCount = 0;
   document.getElementById('gen-picks-rows').innerHTML = '';
   document.getElementById('gen-preview-section').style.display = 'none';
+  if (document.getElementById('story-preview-section'))
+    document.getElementById('story-preview-section').style.display = 'none';
   addPickRow();
+  // Default to picks tab
+  switchGenTab('picks');
 }
+
+// ── GENERATOR TAB SWITCHING ──
+let genPickCount = 0;
+
+window.switchGenTab = (tab) => {
+  const picksSection = document.getElementById('gen-section-picks');
+  const storiesSection = document.getElementById('gen-section-stories');
+  if (!picksSection || !storiesSection) return;
+  picksSection.style.display = tab==='picks' ? '' : 'none';
+  storiesSection.style.display = tab==='stories' ? '' : 'none';
+  document.getElementById('gen-tab-picks').classList.toggle('active', tab==='picks');
+  document.getElementById('gen-tab-stories').classList.toggle('active', tab==='stories');
+  if (tab==='stories') selectStoryType('bienvenida');
+};
 
 window.addPickRow = () => {
   const rows = document.getElementById('gen-picks-rows');
@@ -2134,6 +2203,203 @@ window.downloadPickImage = () => {
   a.href = canvas.toDataURL('image/png');
   a.click();
   showToast('✦ Descargando imagen...');
+};
+
+window.downloadPickImage = () => {
+  const canvas = document.getElementById('gen-canvas');
+  const local = document.getElementById('g-local').value || 'pick';
+  const vis = document.getElementById('g-visitante').value || '';
+  const a = document.createElement('a');
+  a.download = `NationParley_${local}vs${vis}.png`.replace(/\s+/g,'_');
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('✦ Descargando imagen...');
+};
+
+// ── STORIES ──
+let currentStoryType = 'bienvenida';
+
+const STORY_FIELDS = {
+  bienvenida: `<div class="form-title">Story de Presentación</div>
+    <div class="field"><label>Tagline</label><input id="s-tagline" type="text" value="Picks verificados · Desde Colombia"/></div>
+    <div class="field"><label>Texto principal</label>
+      <textarea id="s-main" style="width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:11px;outline:none;resize:none;height:90px;line-height:1.5">Bienvenidos a Nation Parley. No somos un canal más. Somos análisis real, datos verificados y transparencia total.</textarea></div>
+    <div class="field"><label>Call to action</label><input id="s-cta" type="text" value="@NationParleyBot"/></div>`,
+  pick: `<div class="form-title">Story de Pick del Día</div>
+    <div class="row2">
+      <div class="field"><label>Partido</label><input id="s-partido" type="text" placeholder="Real Madrid vs PSG"/></div>
+      <div class="field"><label>Liga</label><input id="s-liga" type="text" placeholder="Champions League" list="ligas-list"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Pick</label><input id="s-pick" type="text" placeholder="Ambos marcan"/></div>
+      <div class="field"><label>Cuota</label><input id="s-cuota" type="text" placeholder="1.85"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Hora</label><input id="s-hora" type="text" placeholder="20:00"/></div>
+      <div class="field"><label>Confianza %</label><input id="s-conf" type="number" placeholder="75" min="50" max="99"/></div>
+    </div>`,
+  resultado: `<div class="form-title">Story de Resultado</div>
+    <div class="field"><label>Resultado</label>
+      <select id="s-resultado"><option value="win">✅ Ganamos</option><option value="loss">📊 Análisis</option></select></div>
+    <div class="row2">
+      <div class="field"><label>Partido</label><input id="s-partido" type="text" placeholder="Real Madrid vs PSG"/></div>
+      <div class="field"><label>Pick</label><input id="s-pick" type="text" placeholder="Ambos marcan"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Cuota</label><input id="s-cuota" type="text" placeholder="1.85"/></div>
+      <div class="field"><label>Win Rate actual %</label><input id="s-winrate" type="number" placeholder="65"/></div>
+    </div>
+    <div class="field"><label>Mensaje</label><input id="s-mensaje" type="text" value="Verificado en Tipstrr ✓"/></div>`,
+  educativo: `<div class="form-title">Story Educativa</div>
+    <div class="field"><label>Tema</label>
+      <select id="s-tema">
+        <option value="valuebet">¿Qué es el Value Betting?</option>
+        <option value="kelly">Criterio Kelly — gestión de bankroll</option>
+        <option value="tipsters">Por qué el 90% de tipsters mienten</option>
+        <option value="winrate">Win Rate vs Yield</option>
+      </select></div>
+    <div class="field"><label>Texto personalizado (opcional)</label>
+      <textarea id="s-edutexto" style="width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:11px;outline:none;resize:none;height:80px;line-height:1.5" placeholder="Dejalo vacío para usar el texto predefinido"></textarea></div>`,
+  vip: `<div class="form-title">Story Recordatorio VIP</div>
+    <div class="field"><label>Precio</label><input id="s-precio" type="text" value="$20.000 COP/mes"/></div>
+    <div class="field"><label>Beneficio destacado</label><input id="s-beneficio" type="text" value="Picks exclusivos + análisis IA"/></div>
+    <div class="field"><label>Win Rate VIP</label><input id="s-wrVip" type="text" value="62-68%"/></div>`,
+  resumen: `<div class="form-title">Story Resumen Semanal</div>
+    <div class="row2">
+      <div class="field"><label>Total picks</label><input id="s-total" type="number" placeholder="10"/></div>
+      <div class="field"><label>Ganados</label><input id="s-ganados" type="number" placeholder="7"/></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Win Rate %</label><input id="s-wr" type="number" placeholder="70"/></div>
+      <div class="field"><label>Semana #</label><input id="s-semana" type="number" placeholder="1"/></div>
+    </div>
+    <div class="field"><label>Mensaje</label><input id="s-msg" type="text" value="Verificado en Tipstrr. Sin trampa."/></div>`,
+};
+
+const EDU_TEXTS = {
+  valuebet:{ title:'VALUE BETTING', sub:'La única estrategia que funciona a largo plazo', body:'Una apuesta tiene valor cuando\ntu probabilidad > probabilidad de la casa.\n\nNo se trata de acertar siempre.\nSe trata de apostar con ventaja.' },
+  kelly:   { title:'CRITERIO KELLY', sub:'Gestión de bankroll profesional', body:'Stake óptimo =\n(prob × cuota − 1) / (cuota − 1)\n\nEjemplo: 60% prob · cuota 1.90\nStake recomendado: 2% del bankroll' },
+  tipsters:{ title:'90% DE TIPSTERS\nMIENTEN', sub:'Aprende a identificarlos', body:'❌ Publican picks después del partido\n❌ Solo muestran los ganadores\n❌ Prometen 80-90% acierto\n\nBusca siempre verificación Tipstrr.' },
+  winrate: { title:'WIN RATE\nVS YIELD', sub:'¿Cuál importa más?', body:'Win Rate = % de picks ganados\nYield = % de ganancia sobre lo apostado\n\nEl Yield es más importante.\nUn 5% de yield sostenido = profesional.' },
+};
+
+window.selectStoryType = (type) => {
+  currentStoryType = type;
+  document.querySelectorAll('.story-type-btn').forEach(btn => {
+    const isActive = btn.id === `stype-${type}`;
+    btn.style.borderColor = isActive ? 'var(--gold)' : 'var(--border)';
+    btn.style.background  = isActive ? 'rgba(212,146,12,.1)' : 'transparent';
+    btn.style.color       = isActive ? 'var(--gold-light)' : 'var(--dim)';
+  });
+  document.getElementById('story-fields').innerHTML = STORY_FIELDS[type] || '';
+  document.getElementById('story-preview-section').style.display = 'none';
+};
+
+window.generateStoryImage = () => {
+  const canvas = document.getElementById('story-canvas');
+  const W = 1080, H = 1920;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#080808'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = 'rgba(255,255,255,0.025)'; ctx.lineWidth = 1;
+  for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  const mkG = (x1,y1,x2,y2)=>{const g=ctx.createLinearGradient(x1,y1,x2,y2);g.addColorStop(0,'#8B5E08');g.addColorStop(.5,'#F5C030');g.addColorStop(1,'#8B5E08');return g;};
+  ctx.fillStyle=mkG(0,0,W,0); ctx.fillRect(0,0,W,12); ctx.fillRect(0,H-12,W,12);
+  ctx.font='700 52px "Barlow Condensed",sans-serif'; ctx.fillStyle=mkG(W/2-150,0,W/2+150,0);
+  ctx.textAlign='center'; ctx.letterSpacing='6px'; ctx.fillText('NATION PARLEY',W/2,100);
+  ctx.strokeStyle='rgba(212,146,12,0.35)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(60,120); ctx.lineTo(W-60,120); ctx.stroke();
+
+  const type = currentStoryType;
+  const sRR = (x,y,w,h,r)=>{ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();};
+
+  if(type==='bienvenida'){
+    const tagline=document.getElementById('s-tagline')?.value||''; const main=document.getElementById('s-main')?.value||''; const cta=document.getElementById('s-cta')?.value||'@NationParleyBot';
+    ctx.font='400 28px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(245,192,48,.6)'; ctx.letterSpacing='3px'; ctx.fillText(tagline.toUpperCase(),W/2,185);
+    ctx.font='900 96px "Barlow Condensed",sans-serif'; ctx.fillStyle='#FFF'; ctx.letterSpacing='0px'; ctx.fillText('BIENVENIDOS',W/2,320);
+    ctx.fillStyle=mkG(W/2-200,0,W/2+200,0); ctx.fillText('A NATION',W/2,430); ctx.fillText('PARLEY',W/2,540);
+    ctx.fillStyle=mkG(0,0,W,0); ctx.fillRect(80,600,W-160,4);
+    const ml=main.split('\n'); ctx.font='400 36px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(232,224,208,.85)'; ctx.letterSpacing='0px';
+    ml.forEach((l,i)=>ctx.fillText(l,W/2,700+i*52));
+    ['✦ Picks ANTES del partido','✦ Verificados en Tipstrr','✦ Transparencia total'].forEach((p,i)=>{ctx.font='700 34px "Barlow Condensed",sans-serif'; ctx.fillStyle='#F5C030'; ctx.fillText(p,W/2,950+i*70);});
+    sRR(80,1180,W-160,100,16); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
+    ctx.font='800 40px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='4px'; ctx.fillText(cta.toUpperCase(),W/2,1242);
+    ctx.font='400 26px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.3)'; ctx.letterSpacing='2px'; ctx.fillText('tipstrr.com/tipster/nation-parley',W/2,1420);
+
+  }else if(type==='pick'){
+    const partido=document.getElementById('s-partido')?.value||''; const liga=document.getElementById('s-liga')?.value||''; const pick=document.getElementById('s-pick')?.value||'PICK'; const cuota=document.getElementById('s-cuota')?.value||'—'; const hora=document.getElementById('s-hora')?.value||''; const conf=parseInt(document.getElementById('s-conf')?.value||'75');
+    ctx.font='600 28px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(245,192,48,.6)'; ctx.letterSpacing='4px'; ctx.fillText((liga+(hora?' · HOY '+hora:'')).toUpperCase(),W/2,200);
+    ctx.font='900 52px "Barlow Condensed",sans-serif'; ctx.fillStyle='#FFF'; ctx.letterSpacing='1px'; ctx.fillText(partido.toUpperCase(),W/2,285);
+    ctx.strokeStyle='rgba(212,146,12,.3)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(80,315); ctx.lineTo(W-80,315); ctx.stroke();
+    ctx.font='600 24px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(245,192,48,.5)'; ctx.letterSpacing='4px'; ctx.fillText('PICK DEL DÍA',W/2,395);
+    ctx.font='900 110px "Barlow Condensed",sans-serif'; ctx.fillStyle='#F5C030'; ctx.letterSpacing='2px'; ctx.fillText(pick.toUpperCase(),W/2,540);
+    sRR(W/2-160,770,320,120,14); ctx.fillStyle='#1a1a1a'; ctx.fill(); ctx.strokeStyle='rgba(212,146,12,.6)'; ctx.lineWidth=1.5; sRR(W/2-160,770,320,120,14); ctx.stroke();
+    ctx.font='600 20px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.45)'; ctx.letterSpacing='3px'; ctx.fillText('CUOTA',W/2,808);
+    ctx.font='800 60px "Barlow Condensed",sans-serif'; ctx.fillStyle='#FFF'; ctx.letterSpacing='0px'; ctx.fillText('@'+cuota,W/2,868);
+    const bY=950,bW=W-160,bH=20; ctx.fillStyle='#1a1a1a'; sRR(80,bY,bW,bH,10); ctx.fill();
+    const pct=Math.min(100,conf); const cl=pct>=80?'#3dba6e':pct>=65?'#F5C030':'#e05050'; ctx.fillStyle=cl; sRR(80,bY,bW*(pct/100),bH,10); ctx.fill();
+    ctx.font='600 24px "Barlow Condensed",sans-serif'; ctx.fillStyle=cl; ctx.letterSpacing='2px'; ctx.fillText(`CONFIANZA ${pct}%`,W/2,1000);
+    ctx.font='400 24px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fillText('Verificado en Tipstrr · tipstrr.com/tipster/nation-parley',W/2,1080);
+    sRR(80,1160,W-160,90,14); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
+    ctx.font='800 36px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='3px'; ctx.fillText('CANAL GRATIS: @NATIONPARLEYBOT',W/2,1216);
+
+  }else if(type==='resultado'){
+    const res=document.getElementById('s-resultado')?.value||'win'; const partido=document.getElementById('s-partido')?.value||''; const pick=document.getElementById('s-pick')?.value||''; const cuota=document.getElementById('s-cuota')?.value||''; const wr=document.getElementById('s-winrate')?.value||''; const msg=document.getElementById('s-mensaje')?.value||'Verificado en Tipstrr ✓'; const isWin=res==='win';
+    const ac=isWin?'#3dba6e':'#888'; ctx.fillStyle=ac; ctx.fillRect(0,0,W,12);
+    ctx.font=`900 ${isWin?'120':'88'}px "Barlow Condensed",sans-serif`; ctx.fillStyle=ac; ctx.letterSpacing='4px'; ctx.fillText(isWin?'GANAMOS':'ANÁLISIS',W/2,isWin?320:280);
+    ctx.font='700 48px "Barlow Condensed",sans-serif'; ctx.fillStyle='#FFF'; ctx.letterSpacing='1px'; ctx.fillText(partido.toUpperCase(),W/2,700);
+    ctx.font='600 38px "Barlow Condensed",sans-serif'; ctx.fillStyle='#F5C030'; ctx.letterSpacing='1px'; ctx.fillText(`${pick.toUpperCase()} · @${cuota}`,W/2,770);
+    if(wr){ctx.font='600 30px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.5)'; ctx.fillText(`WIN RATE: ${wr}%`,W/2,850);}
+    ctx.font='400 28px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.4)'; ctx.letterSpacing='2px'; ctx.fillText(msg,W/2,950); ctx.fillText('tipstrr.com/tipster/nation-parley',W/2,995);
+    sRR(80,1120,W-160,90,14); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
+    ctx.font='800 36px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='3px'; ctx.fillText('PICKS GRATIS: @NATIONPARLEYBOT',W/2,1176);
+
+  }else if(type==='educativo'){
+    const tema=document.getElementById('s-tema')?.value||'valuebet'; const customT=document.getElementById('s-edutexto')?.value||''; const edu=EDU_TEXTS[tema]||EDU_TEXTS.valuebet; const body=customT||edu.body;
+    ctx.font='600 28px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(245,192,48,.55)'; ctx.letterSpacing='4px'; ctx.fillText('APRENDE A APOSTAR MEJOR',W/2,200);
+    const tl=edu.title.split('\n'); ctx.font=`900 ${tl.length>1?'100':'120'}px "Barlow Condensed",sans-serif`; ctx.fillStyle='#F5C030'; ctx.letterSpacing='2px';
+    tl.forEach((l,i)=>ctx.fillText(l,W/2,360+i*115));
+    const sY=360+tl.length*115+20; ctx.font='600 36px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.6)'; ctx.letterSpacing='1px'; ctx.fillText(edu.sub,W/2,sY);
+    ctx.strokeStyle='rgba(212,146,12,.3)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(80,sY+40); ctx.lineTo(W-80,sY+40); ctx.stroke();
+    const bl=body.split('\n'); ctx.font='400 34px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(232,224,208,.85)'; ctx.letterSpacing='0px';
+    bl.forEach((l,i)=>ctx.fillText(l,W/2,sY+100+i*52));
+    sRR(80,1600,W-160,90,14); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
+    ctx.font='800 36px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='3px'; ctx.fillText('PICKS GRATIS: @NATIONPARLEYBOT',W/2,1656);
+
+  }else if(type==='vip'){
+    const precio=document.getElementById('s-precio')?.value||'$20.000 COP/mes'; const ben=document.getElementById('s-beneficio')?.value||''; const wrV=document.getElementById('s-wrVip')?.value||'62-68%';
+    ctx.font='900 100px "Barlow Condensed",sans-serif'; ctx.fillStyle=mkG(W/2-200,0,W/2+200,0); ctx.letterSpacing='4px'; ctx.fillText('VIP',W/2,320);
+    ctx.font='600 38px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.7)'; ctx.letterSpacing='2px'; ctx.fillText('CANAL PREMIUM · NATION PARLEY',W/2,410);
+    ['✦ '+ben,'✦ Win Rate: '+wrV,'✦ Picks antes del partido','✦ Verificados en Tipstrr','✦ Análisis IA personalizada'].forEach((f,i)=>{ctx.font='600 36px "Barlow Condensed",sans-serif'; ctx.fillStyle=i===0?'#F5C030':'rgba(232,224,208,.8)'; ctx.letterSpacing='1px'; ctx.fillText(f,W/2,570+i*70);});
+    sRR(80,980,W-160,130,16); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
+    ctx.font='900 52px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='2px'; ctx.fillText(precio,W/2,1040); ctx.font='600 26px "Barlow Condensed",sans-serif'; ctx.fillText('SIN PERMANENCIA · CANCELÁ CUANDO QUIERAS',W/2,1082);
+    ctx.font='600 30px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.5)'; ctx.letterSpacing='2px'; ctx.fillText('Escribe QUIERO VIP a @NationParleyBot',W/2,1200);
+
+  }else if(type==='resumen'){
+    const total=document.getElementById('s-total')?.value||'0'; const gan=document.getElementById('s-ganados')?.value||'0'; const wr=document.getElementById('s-wr')?.value||'0'; const sem=document.getElementById('s-semana')?.value||'1'; const msg=document.getElementById('s-msg')?.value||''; const perd=parseInt(total)-parseInt(gan); const wrN=parseInt(wr);
+    ctx.font='600 32px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(245,192,48,.6)'; ctx.letterSpacing='4px'; ctx.fillText(`SEMANA ${sem} · NATION PARLEY`,W/2,200);
+    ctx.font='900 160px "Barlow Condensed",sans-serif'; ctx.fillStyle=wrN>=65?'#3dba6e':wrN>=55?'#F5C030':'#e05050'; ctx.letterSpacing='0px'; ctx.fillText(wr+'%',W/2,450);
+    ctx.font='600 42px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.6)'; ctx.letterSpacing='3px'; ctx.fillText('WIN RATE',W/2,530);
+    ctx.strokeStyle='rgba(212,146,12,.25)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(80,570); ctx.lineTo(W-80,570); ctx.stroke();
+    [{l:'PICKS',v:total,c:'#F5C030'},{l:'GANADOS',v:gan,c:'#3dba6e'},{l:'PERDIDOS',v:String(perd),c:'#e05050'}].forEach((s,i)=>{const x=180+i*280; ctx.font='900 72px "Barlow Condensed",sans-serif'; ctx.fillStyle=s.c; ctx.textAlign='center'; ctx.fillText(s.v,x,720); ctx.font='600 22px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.4)'; ctx.letterSpacing='2px'; ctx.fillText(s.l,x,758);});
+    ctx.textAlign='center'; ctx.font='400 28px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(255,255,255,.4)'; ctx.letterSpacing='2px'; ctx.fillText(msg,W/2,870); ctx.fillText('tipstrr.com/tipster/nation-parley',W/2,912);
+    sRR(80,1020,W-160,90,14); ctx.fillStyle=mkG(80,0,W-80,0); ctx.fill();
+    ctx.font='800 34px "Barlow Condensed",sans-serif'; ctx.fillStyle='#000'; ctx.letterSpacing='3px'; ctx.fillText('PICKS GRATIS: @NATIONPARLEYBOT',W/2,1076);
+  }
+
+  ctx.font='600 24px "Barlow Condensed",sans-serif'; ctx.fillStyle='rgba(212,146,12,.3)'; ctx.letterSpacing='3px'; ctx.fillText('NATION PARLEY · @NATIONPARLEYBOT',W/2,H-50);
+  document.getElementById('story-preview-section').style.display='';
+  showToast('✦ Story generada');
+};
+
+window.downloadStoryImage = () => {
+  const canvas = document.getElementById('story-canvas');
+  const a = document.createElement('a');
+  a.download = `NationParley_Story_${currentStoryType}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('✦ Story descargada');
 };
 
 // Init generator when page loads
